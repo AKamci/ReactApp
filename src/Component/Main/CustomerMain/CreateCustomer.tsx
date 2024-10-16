@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Calendar } from 'primereact/calendar';
 import React, { useRef, useState } from 'react';
 import { ConfirmPopup } from 'primereact/confirmpopup';
@@ -10,9 +10,11 @@ import ApiState from '../../../infrastructure/Enums/ApiState';
 
 const CreateCustomer = () => {
   const dispatch = useAppDispatch();
-  const state = useAppSelector((state) => state.deleteCustomer.state);
-  const customer = useAppSelector((state) => state.deleteCustomer.data);
-  const activeCustomer = useAppSelector((state) => state.deleteCustomer.activeRequest);
+  const state = useAppSelector((state) => state.createCustomer.state);
+  const customer = useAppSelector((state) => state.createCustomer.data);
+  const activeCustomer = useAppSelector((state) => state.createCustomer.activeRequest);
+  const errorMessage = useAppSelector((state) => state.createCustomer.errorMessage);
+  const responseStatus = useAppSelector((state) => state.createCustomer.responseStatus);
 
   const [visible, setVisible] = useState<boolean>(false);
   const toast = useRef<Toast>(null);
@@ -25,12 +27,25 @@ const CreateCustomer = () => {
   const [gender, setGender] = useState('');
   const [tckn, setTckn] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
   const customerData = location.state?.customer;
 
-  // Define the date range
+  
   const today = new Date();
   const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate()); 
   const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+
+  const validateEmail = (email: string) => {
+    
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail|hotmail|yahoo|outlook|live)\.(com|net|org|co|info|biz)$/;
+    return emailRegex.test(email);
+  };
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^(05\d{9}|[0-9]{3}-[0-9]{3}-[0-9]{4})$/;
+    return phoneRegex.test(phone);
+};
 
   const validateForm = () => {
     if (tckn.length !== 11) { 
@@ -41,10 +56,19 @@ const CreateCustomer = () => {
       toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Tüm alanlar doldurulmalıdır.', life: 3000 });
       return false;
     }
+    if (!validateEmail(email)) {
+      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Geçersiz e-posta formatı.', life: 3000 });
+      return false;
+    }
+    if(!validatePhone(phone))
+    {
+      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Geçersiz telefon formatı.', life: 3000 });
+      return false;
+    }
     return true;
   };
 
-  const accept = () => {
+  const accept = async () => {
     const formData = {
       tckn: tckn, 
       name: name,
@@ -56,7 +80,12 @@ const CreateCustomer = () => {
     };
     
     console.log(JSON.stringify(formData, null, 2));
-    
+    console.log('State:', state);
+    console.log('Customer:', customer);
+    console.log('Active Customer:', activeCustomer);
+    console.log('Error Message:', errorMessage);
+    console.log('Response Status:', responseStatus);
+      
     dispatch(createCustomer({
       dto: {
         tckn: tckn, 
@@ -69,12 +98,17 @@ const CreateCustomer = () => {
       }
     }));
 
-    // Check for duplicate TCKN (add your logic here)
-    if (false) { // Replace false with your actual condition
+    if (responseStatus === 409) { 
       toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Girilen TCKN zaten mevcuttur.', life: 2000 });
+    } else {
+      setLoading(true);
+      await toast.current?.show({ severity: 'info', summary: 'Mesaj', detail: 'Müşteri Başarıyla Oluşturuldu.', life: 2000 });
+      
+      setTimeout(() => {
+        setLoading(false);
+        navigate('/customer/customerList');
+      }, 2000); 
     }
-
-    toast.current?.show({ severity: 'info', summary: 'Mesaj', detail: 'Müşteri Başarıyla Oluşturuldu.', life: 2000 });
   };
 
   const reject = () => {
@@ -96,25 +130,26 @@ const CreateCustomer = () => {
           type="text"
           className="form-control"
           id="inputTckn"
+          disabled={loading}
           value={tckn} 
           onChange={(e) => setTckn(e.target.value)} 
         />
       </div>
       <div className="col-md-3">
         <label htmlFor="inputName" className="form-label">İsim</label>
-        <input type="text" className="form-control" id="inputName" value={name} onChange={(e) => setName(e.target.value)} />
+        <input type="text" className="form-control" id="inputName" disabled={loading} value={name} onChange={(e) => setName(e.target.value)} />
       </div>
       <div className="col-md-3">
         <label htmlFor="inputPhone" className="form-label">Telefon</label>
-        <input type="text" className="form-control" id="inputPhone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <input type="text" className="form-control" id="inputPhone" disabled={loading} value={phone} onChange={(e) => setPhone(e.target.value)} />
       </div>
       <div className="col-md-4">
         <label htmlFor="inputEmail" className="form-label">E-Mail</label>
-        <input type="email" className="form-control" id="inputEmail" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input type="email" className="form-control" id="inputEmail" disabled={loading} value={email} onChange={(e) => setEmail(e.target.value)} />
       </div>
       <div className="col-12">
         <label htmlFor="inputAddress" className="form-label">Adres</label>
-        <input type="text" className="form-control" id="inputAddress" value={address} onChange={(e) => setAddress(e.target.value)} />
+        <input type="text" className="form-control" id="inputAddress" disabled={loading} value={address} onChange={(e) => setAddress(e.target.value)} />
       </div>
       <div className="col-3">
         <label htmlFor="inputBirthDate" className="form-label">Doğum Tarihi</label>
@@ -124,13 +159,14 @@ const CreateCustomer = () => {
           onChange={(e) => setBirthDate(e.value)} 
           dateFormat="dd-mm-yy"
           showIcon 
-          minDate={minDate} // Set the minimum date
-          maxDate={maxDate} // Set the maximum date
+          disabled={loading}
+          minDate={minDate} 
+          maxDate={maxDate} 
         />
       </div>
       <div className="col-12">
         <div className="form-floating col-2 small">
-          <select className="form-select" id="floatingSelect" value={gender} onChange={(e) => setGender(e.target.value)}>
+          <select className="form-select" id="floatingSelect" value={gender} disabled={loading} onChange={(e) => setGender(e.target.value)}>
             <option value="">Seçiniz</option>
             <option value="Kadın">Kadın</option>
             <option value="Erkek">Erkek</option>
@@ -155,7 +191,7 @@ const CreateCustomer = () => {
             rejectLabel="Hayır" 
           />
           <div className="card flex justify-content-center col-2">
-            <Button ref={buttonEl} onClick={handleConfirm} icon="pi pi-check" label="Onayla" />
+            <Button ref={buttonEl} onClick={handleConfirm} icon="pi pi-check" label={loading ? 'Yönlendiriliyor...' : 'Onayla'} />
           </div>
         </>
       </div>

@@ -3,9 +3,10 @@ import axios from 'axios';
 import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
 import Endpoints from '../../../Helpers/Api-Endpoints';
+import { CarPolicyDto } from "../../../dto/CarPolicyDto";
 
-export interface CustomerState {
-    data: CustomerDto;
+export interface CarPolicyState {
+    data: Array<CarPolicyDto>;
     state: ApiState;
     activeRequest: number | null;
     responseStatus: number | null; 
@@ -15,20 +16,17 @@ export interface CustomerState {
 const initialState = { 
     state: ApiState.Idle, 
     activeRequest: null, 
-    data: {} as CustomerDto, 
+    data: [] as Array<CarPolicyDto>, 
     responseStatus: null, 
     errorMessage: null    
-} as CustomerState;
+} as CarPolicyState;
 
-export const getCustomers = createAsyncThunk<CustomerDto, { tckn: string }, { state: CustomerState }>(
-    'customer',
-    async ({ tckn }, { rejectWithValue }) => {
-        console.log("getCustomers with tckn:", tckn);
-        
+export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: number, size: number }, { state: CarPolicyState }>(
+    'carPolicy/list',
+    async ({ page, size }, { rejectWithValue }) => {
+       
         try {
-            const response = await axios.get<CustomerDto>(Endpoints.Customers.Get, {
-                params: { tckn }
-            });
+            const response = await axios.get<Array<CarPolicyDto>>(`${Endpoints.CarPolicy.GetAll}?page=${page}&size=${size}`);
             console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {
@@ -41,23 +39,23 @@ export const getCustomers = createAsyncThunk<CustomerDto, { tckn: string }, { st
     }
 );
 
-const getCustomerSlice = createSlice({
-    name: 'getCustomer',
+const getAllCarPolicySlice = createSlice({
+    name: 'getAllCarPolicy',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(getCustomers.pending, (state, action) => {
+        builder.addCase(getAllCarPolicy.pending, (state, action) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   
         });
-        builder.addCase(getCustomers.fulfilled, (state, action) => {
+        builder.addCase(getAllCarPolicy.fulfilled, (state, action) => {
             console.log("Müşteri verisi Redux'a geldi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  
             state.errorMessage = null;   
         });
-        builder.addCase(getCustomers.rejected, (state, action) => {
+        builder.addCase(getAllCarPolicy.rejected, (state, action) => {
             state.state = ApiState.Rejected;
             if (action.payload) {
                 state.responseStatus = (action.payload as any).status;  
@@ -75,6 +73,6 @@ const getCustomerSlice = createSlice({
     },
 });
 
-export const { setActiveRequest } = getCustomerSlice.actions;
+export const { setActiveRequest } = getAllCarPolicySlice.actions;
 
-export default getCustomerSlice.reducer;
+export default getAllCarPolicySlice.reducer;

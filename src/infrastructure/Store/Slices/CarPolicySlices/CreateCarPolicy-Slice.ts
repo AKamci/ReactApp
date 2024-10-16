@@ -3,61 +3,64 @@ import axios from 'axios';
 import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
 import Endpoints from '../../../Helpers/Api-Endpoints';
+import { CarPolicyDto } from "../../../dto/CarPolicyDto";
 
-export interface CustomerState {
-    data: CustomerDto;
+export interface CarPolicyState {
+    data: CarPolicyDto;
     state: ApiState;
     activeRequest: number | null;
-    responseStatus: number | null;
-    errorMessage: string | null; 
+    responseStatus: number | null; 
+    errorMessage: string | null;   
 }
 
 const initialState = { 
     state: ApiState.Idle, 
     activeRequest: null, 
+    data: {} as CarPolicyDto, 
     responseStatus: null, 
-    errorMessage: null, 
-} as CustomerState;
+    errorMessage: null    
+} as CarPolicyState;
 
-export const createCustomer = createAsyncThunk<CustomerDto, { dto: CustomerDto }, { state: CustomerState }>(
-    'customer',
+export const createCarPolicy = createAsyncThunk<CarPolicyDto, { dto: CarPolicyDto }, { state: CarPolicyState }>(
+    'createCarPolicy',
     async ({ dto }, { rejectWithValue }) => {
-        console.log("Creating customer with dto:", dto);
+        console.log("getCustomers with tckn:", dto);
         
         try {
-            const response = await axios.post<CustomerDto>(Endpoints.Customers.Create, dto);
-            console.log("Status: ", response.status);
+            const response = await axios.post<CarPolicyDto>(Endpoints.CarPolicy.Create,dto);
+            console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {
             
             const status = error.response ? error.response.status : 500; 
             const message = error.response?.data?.message || "An error occurred";
             console.error("Error status:", status, "Message:", message);
-            return rejectWithValue({ status, message }); 
+            return rejectWithValue({ status, message });
         }
     }
 );
 
-const createCustomerSlice = createSlice({
-    name: 'createCustomer',
+const createCarPolicySlice = createSlice({
+    name: 'createCarPolicy',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(createCustomer.pending, (state, action) => {
+        builder.addCase(createCarPolicy.pending, (state, action) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
-            state.errorMessage = null; 
+            state.errorMessage = null;   
         });
-        builder.addCase(createCustomer.fulfilled, (state, action) => {
+        builder.addCase(createCarPolicy.fulfilled, (state, action) => {
+            console.log("Müşteri verisi Redux'a geldi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
-            state.responseStatus = 200; 
-            state.errorMessage = null; 
+            state.responseStatus = 200;  
+            state.errorMessage = null;   
         });
-        builder.addCase(createCustomer.rejected, (state, action) => {
+        builder.addCase(createCarPolicy.rejected, (state, action) => {
             state.state = ApiState.Rejected;
             if (action.payload) {
-                state.responseStatus = (action.payload as any).status; 
-                state.errorMessage = (action.payload as any).message; 
+                state.responseStatus = (action.payload as any).status;  
+                state.errorMessage = (action.payload as any).message;   
             } else {
                 state.responseStatus = null; 
                 state.errorMessage = "Unknown error occurred"; 
@@ -71,6 +74,6 @@ const createCustomerSlice = createSlice({
     },
 });
 
-export const { setActiveRequest } = createCustomerSlice.actions;
+export const { setActiveRequest } = createCarPolicySlice.actions;
 
-export default createCustomerSlice.reducer;
+export default createCarPolicySlice.reducer;

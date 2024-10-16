@@ -9,20 +9,19 @@ export interface CustomerState {
 	data: Array<CustomerDto>;
 	state: ApiState;
 	activeRequest:number | null;
+	totalRecords: number;
 }
 
-const initialState = { state: ApiState.Idle, activeRequest: null, data:[] } as CustomerState;
+const initialState = { state: ApiState.Idle, activeRequest: null, data:[], totalRecords:0 } as CustomerState;
 
-export const loadCustomers: AsyncThunk<Array<CustomerDto>, void, CustomerState> = createAsyncThunk(	
-	'customer/list',
-	async () => {
-		console.log("loadCustomers")
-		const response = await axios.get<Array<CustomerDto>>(Endpoints.Customers.List);
-		console.log(response.status)
-		console.log(response.data)
-		return response.data;
-	}
+export const loadCustomers: AsyncThunk<Array<CustomerDto>, { page: number, size: number }, CustomerState> = createAsyncThunk(
+    'customer/list',
+    async ({ page, size }) => {
+        const response = await axios.get<Array<CustomerDto>>(`${Endpoints.Customers.List}?page=${page}&size=${size}`);
+        return response.data;
+    }
 );
+
 
 const customersSlice = createSlice({
 	name: 'customers',

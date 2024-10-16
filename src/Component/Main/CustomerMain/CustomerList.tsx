@@ -1,31 +1,43 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/store';
-import ApiState from '../../../infrastructure/Enums/ApiState';
 import { loadCustomers } from '../../../infrastructure/Store/Slices/CustomerSlices/GetAllCustomer-Slice';
-import { deleteCustomers } from '../../../infrastructure/Store/Slices/CustomerSlices/DeleteCustomer-Slice';
-import { isFulfilled } from '@reduxjs/toolkit';
-import { redirect, redirectDocument, useNavigate } from 'react-router-dom';
-import { CustomerDto } from '../../../infrastructure/dto/CustomerDto';
 import { Toast } from 'primereact/toast';
+import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
+import { useNavigate } from 'react-router-dom';
+import { CustomerDto } from '../../../infrastructure/dto/CustomerDto';
+import { deleteCustomers } from '../../../infrastructure/Store/Slices/CustomerSlices/DeleteCustomer-Slice';
+import { totalRecords } from '../../../infrastructure/Store/Slices/CustomerSlices/TotalRecordOfCustomer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPen } from '@fortawesome/free-solid-svg-icons';
+
+
 
 const CustomerList = () => {
     const dispatch = useAppDispatch();
-    const stateCust = useAppSelector((state) => state.customers.state);
-    const state = useAppSelector((state) => state.deleteCustomer.state);
     const customers = useAppSelector((state) => state.customers.data);
-    const activeCustomer = useAppSelector((state) => state.customers.activeRequest);
+    const state = useAppSelector((state) => state.deleteCustomer.state);
+
+    const totalRecordState = useAppSelector((state) => state.totalRecord.state);
+    const totalRecord = useAppSelector((state) => state.totalRecord.data);
+
+    const [first, setFirst] = useState<number>(0);
+    const [rows, setRows] = useState<number>(3); 
     const toast = useRef<Toast>(null);
 
 
+
+
+
     useEffect(() => {
-        console.log("Loading...");
-        console.log(state);
-        dispatch(loadCustomers());
-    }, [activeCustomer]);
+        dispatch(totalRecords())
+        dispatch(loadCustomers({ page: first / rows, size: rows })); 
+    }, [first, rows]);
 
-    console.log(customers);
-
-
+    const onPageChange = (event: PaginatorPageChangeEvent) => {
+        setFirst(event.first);
+        setRows(event.rows);
+    };
 
     const removeCustomer = async (tckn: string) => {
         try {
@@ -34,7 +46,7 @@ const CustomerList = () => {
             
             if (deleteCustomers.fulfilled.match(resultAction)) {
                 
-                dispatch(loadCustomers());
+                dispatch(loadCustomers({ page: first / rows, size: rows }));
                 
                 toast.current?.show({ 
                     severity: 'info', 
@@ -75,10 +87,7 @@ const CustomerList = () => {
 
     };
 
-
-
     return (
-        
         <div className="card">
             <Toast ref={toast} />
             <table className="table">
@@ -99,7 +108,7 @@ const CustomerList = () => {
                 <tbody>
                     {customers.map((customer) => (
                         <tr key={customer.id}>
-                            <th scope="row">{customer.id}</th>
+                            <td>{customer.id}</td>
                             <td>{customer.name}</td>
                             <td>{customer.tckn}</td>
                             <td>{customer.address}</td>
@@ -109,18 +118,25 @@ const CustomerList = () => {
                             <td>{customer.phone}</td>
                             <td>
                                 {customer.id > 0 && (
-                                    <button className='btn btn-danger' onClick={() => removeCustomer(customer.tckn) }>Sil</button>
+                                    <button className='btn btn-danger' onClick={() => removeCustomer(customer.tckn) }><FontAwesomeIcon icon={faTrash} /></button>
                                 )}
                             </td>
                             <td>
                                 {customer.id > 0 && (
-                                    <button className='btn btn-info' onClick={() => updateCustomer(customer) }>Güncelle</button>
+                                    <button className='btn btn-info' onClick={() => updateCustomer(customer) }><FontAwesomeIcon icon={faPen} /></button>
                                 )}
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+            <Paginator          
+                first={first}
+                rows={rows}
+                totalRecords={totalRecord} 
+                rowsPerPageOptions={[3, 10, 20, 50]}
+                onPageChange={onPageChange}
+            />
         </div>
     );
 };
