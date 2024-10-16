@@ -8,7 +8,7 @@ export interface CustomerDto {
     phone: string;
     email: string;
     password: string;
-    age: number;
+    birthDay: Date;
     gender: string;
     carPolicies: CarPolicyDto[];
 }

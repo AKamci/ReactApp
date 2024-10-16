@@ -14,17 +14,19 @@ export interface CustomerState {
 
 const initialState = { state: ApiState.Idle, activeRequest: null, data:{} as CustomerDto  } as CustomerState;
 
-export const updateCustomers = createAsyncThunk<CustomerDto, { tckn: string }, { state: CustomerState }>(
+
+
+export const updateCustomer = createAsyncThunk<CustomerDto, { dto: CustomerDto }, { state: CustomerState }>(
 	'customer',
-	async ({ tckn }) => {
-		console.log("getCustomers with tckn:", tckn);
-		const response = await axios.get<CustomerDto>(Endpoints.Customers.Get, {
-			params: {				
-				tckn: tckn
-			}
-		});
+	async ({ dto }) => {
+		console.log("Creating customer with dto:", dto);
+		
+		// Sending the dto as the request body
+		const response = await axios.put<CustomerDto>(Endpoints.Customers.Create, dto);
+		
+		console.log("Status: ")
 		console.log(response.status);
-		console.log(response.data);
+		//console.log(response.data);
 
 		return response.data;
 	}
@@ -35,15 +37,15 @@ const updateCustomerSlice = createSlice({
 	name: 'updateCustomer',
 	initialState,
 	extraReducers: (builder) => {
-		builder.addCase(updateCustomers.pending, (state, action) => {
+		builder.addCase(updateCustomer.pending, (state, action) => {
 			state.state = ApiState.Pending;
 		});
-		builder.addCase(updateCustomers.fulfilled, (state, action) => {
+		builder.addCase(updateCustomer.fulfilled, (state, action) => {
 			console.log("Müşteri verisi Redux'a geldi:", action.payload);
 			state.data = action.payload;
 			state.state = ApiState.Fulfilled;
 		});
-		builder.addCase(updateCustomers.rejected, (state, action) => {
+		builder.addCase(updateCustomer.rejected, (state, action) => {
 			state.state = ApiState.Rejected;
 		});
 	},

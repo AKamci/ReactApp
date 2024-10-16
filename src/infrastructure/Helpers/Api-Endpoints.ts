@@ -4,8 +4,8 @@ export default {
 	Customers: {
 		List: `${baseUrl}/customer/list`,
 		Delete: `${baseUrl}/customer`,
-		Post: `${baseUrl}/customer`,
-		Put: `${baseUrl}/customer`,
+		Create: `${baseUrl}/customer`,
+		Update: `${baseUrl}/customer`,
 		Get: `${baseUrl}/customer`,
 
 	},

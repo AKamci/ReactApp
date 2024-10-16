@@ -4,7 +4,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import  customerSlice  from './Slices/CustomerSlices/GetAllCustomer-Slice';
 import  getCustomerSlice  from './Slices/CustomerSlices/GetCustomer-Slice';
 import  updateCustomerSlice  from './Slices/CustomerSlices/UpdateCustomer-Slice';
-import  deleteCustomersSlice  from './Slices/CustomerSlices/DeleteCustomer-Slice';
+import  deleteCustomerSlice  from './Slices/CustomerSlices/DeleteCustomer-Slice';
 
 
 
@@ -15,7 +15,7 @@ const store = configureStore({
 		customers : customerSlice,
 		getCustomer: getCustomerSlice,
 		updateCustomer: updateCustomerSlice,
-		deleteCustomer: deleteCustomersSlice,
+		deleteCustomer: deleteCustomerSlice,
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
 });

@@ -3,12 +3,23 @@ import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/st
 import { getCustomers } from '../../../infrastructure/Store/Slices/CustomerSlices/GetCustomer-Slice';
 import { InputText } from "primereact/inputtext";
 import { deleteCustomers } from '../../../infrastructure/Store/Slices/CustomerSlices/DeleteCustomer-Slice';
+import { useNavigate } from 'react-router-dom';
+import { CustomerDto } from '../../../infrastructure/dto/CustomerDto';
+import { loadCustomers } from '../../../infrastructure/Store/Slices/CustomerSlices/GetAllCustomer-Slice';
+import ApiState from '../../../infrastructure/Enums/ApiState';
+import { toast } from 'react-toastify';
+import { useRef } from 'react';
+import { Toast } from 'primereact/toast';
+import { useDispatch } from 'react-redux';
 
 const GetCustomer = () => {
     const dispatch = useAppDispatch();
     const customerEntity = useAppSelector((state) => state.getCustomer.data);
+    const activeCustomer = useAppSelector((state) => state.customers.activeRequest);
     const [loading, setLoading] = useState<boolean>(false);
     const [tckn, setTckn] = useState<string>(''); 
+    const toast = useRef<Toast>(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         console.log("Customer Triggered");
@@ -25,12 +36,34 @@ const GetCustomer = () => {
         dispatch(getCustomers({ tckn }));
         console.log(customerEntity);
     };
+
+
+    const removeCustomer = async (tckn: string) => {
+        console.log("tckn")
+        console.log(tckn)
+        await dispatch(deleteCustomers({ tckn }))
+        toast.current?.show({ severity: 'info', summary: 'Mesaj', detail: 'Müşteri Başarıyla Silindi.', life: 2000 });
+        setRefreshKey((oldKey) => oldKey + 1);
+        
+    };
+
+    const navigate = useNavigate();
+    const updateCustomer = (customer: CustomerDto) => {
+        
+        const customerData = {
+            customer
+        };
+   
+        navigate('/customer/updateCustomer', { state: { customer: customerData } });
+
+
+    };
 ;
 
     const dataToDisplay = Array.isArray(customerEntity) ? customerEntity : customerEntity ? [customerEntity] : [];
 
     return (
-        <div>
+        <div key={refreshKey}>
             <h3>MÜŞTERİ ARAMA İÇİN TCKN GİRİN</h3>
             <div className="card flex justify-content-center">
                 <InputText 
@@ -72,12 +105,12 @@ const GetCustomer = () => {
                             <td>{customer.phone}</td>
                             <td>
                                 {customerEntity.id > 0 && (
-                                    <button className='btn btn-danger' onClick={() => removeCustomer()}>Sil</button>
+                                    <button className='btn btn-danger' onClick={() => removeCustomer(customer.tckn)}>Sil</button>
                                 )}
                             </td>
                             <td>
                                 {customerEntity.id > 0 && (
-                                    <button className='btn btn-info' onClick={() => updateCustomer()}>Güncelle</button>
+                                    <button className='btn btn-info' onClick={() => updateCustomer(customer)}>Güncelle</button>
                                 )}
                             </td>
                         </tr>
