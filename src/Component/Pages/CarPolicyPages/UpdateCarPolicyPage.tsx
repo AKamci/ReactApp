@@ -8,9 +8,12 @@ import React from 'react';
 import CreateCustomer from '../../Main/CustomerMain/CreateCustomer';
 import CustomerLeftNav from '../../left-nav/CustomerLeftNav';
 import CustomerList from '../../Main/CustomerMain/CustomerList';
+import GetCustomer from '../../Main/CustomerMain/GetCustomer';
+import GetCarPolicy from '../../Main/CarPolicyMain/GetCarPolicy';
+import UpdateCarPolicy from '../../Main/CarPolicyMain/UpdateCarPolicy';
 
-const CustomerListPage = () => {
-	console.log('CreateCustomerPage is rendered.');
+const UpdateCarPolicyPage = () => {
+	console.log('GetCarPolicyPage is rendered.');
 	return (
 		<Page>
 			<Page.Header>
@@ -19,11 +22,8 @@ const CustomerListPage = () => {
 			<Page.BreadCrumb>
 				<BreadCrumb />
 			</Page.BreadCrumb>
-			<Page.Aside>
-                <CustomerLeftNav/>
-			</Page.Aside>
-			<Page.Main>
-				<CustomerList />
+			<Page.Main fullPage>
+				<UpdateCarPolicy/>
 			</Page.Main>
 			<Page.Footer>
 				<Footer />
@@ -32,4 +32,4 @@ const CustomerListPage = () => {
 	);
 };
 
-export default React.memo(CustomerListPage);
+export default React.memo(UpdateCarPolicyPage);

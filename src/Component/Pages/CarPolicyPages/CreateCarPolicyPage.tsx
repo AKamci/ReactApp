@@ -7,10 +7,10 @@ import Footer from '../../Shared/Footer';
 import React from 'react';
 import CreateCustomer from '../../Main/CustomerMain/CreateCustomer';
 import CustomerLeftNav from '../../left-nav/CustomerLeftNav';
-import CustomerList from '../../Main/CustomerMain/CustomerList';
+import CreateCarPolicy from '../../Main/CarPolicyMain/CreateCarPolicy';
 
-const CustomerListPage = () => {
-	console.log('CreateCustomerPage is rendered.');
+const CreateCarPolicyPage = () => {
+	console.log('CreateCarPolicyPage is rendered.');
 	return (
 		<Page>
 			<Page.Header>
@@ -20,10 +20,10 @@ const CustomerListPage = () => {
 				<BreadCrumb />
 			</Page.BreadCrumb>
 			<Page.Aside>
-                <CustomerLeftNav/>
+                <CarPolicyLeftNav/>
 			</Page.Aside>
 			<Page.Main>
-				<CustomerList />
+				<CreateCarPolicy />
 			</Page.Main>
 			<Page.Footer>
 				<Footer />
@@ -32,4 +32,4 @@ const CustomerListPage = () => {
 	);
 };
 
-export default React.memo(CustomerListPage);
+export default React.memo(CreateCarPolicyPage);

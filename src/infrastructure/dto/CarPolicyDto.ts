@@ -7,8 +7,9 @@ export interface CarPolicyDto {
     policyDescription: string;
     policyType: string;
     policyStatus: boolean;
-    policyDate: Date;
+    policyStartDate: Date;
+    policyEndDate: Date;
     policyAmount: number;
-    licensePlate: LicensePlateDto;
-    customer: CustomerDto;
+    licensePlateNumber: string;
+    tckn: string;
 }

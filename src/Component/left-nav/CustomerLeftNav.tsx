@@ -30,6 +30,7 @@ const CustomerLeftNav = () => {
         dispatch(setActiveRequest(null));
     }}
     className={({ isActive }) =>
+        
         `list-group-item list-group-item-action ${isActive && activeCustomer === null ? 'active' : ''}`
     }
 >

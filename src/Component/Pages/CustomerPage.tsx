@@ -20,7 +20,7 @@ const CustomerPage = () => {
                 <CustomerLeftNav/>
 			</Page.Aside>
 			<Page.Main>
-				<EntityList />
+
 			</Page.Main>
 			<Page.Footer>
 				<Footer />

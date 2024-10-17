@@ -22,14 +22,6 @@ import GetAllCarPolicyByPlate from './Slices/CarPolicySlices/GetCarPolicyByPlate
 import TotalRecordOfCarPolicy from './Slices/CarPolicySlices/TotalRecordOfCarPolicy-Slice';
 
 
-
-
-
-
-
-
-
-
 const store = configureStore({
 	reducer: {
 		//CUSTOMER STORE

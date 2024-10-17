@@ -16,9 +16,7 @@ const HomePage = () => {
 			<Page.BreadCrumb>
 				<BreadCrumb />
 			</Page.BreadCrumb>
-			<Page.Aside>
-			</Page.Aside>
-			<Page.Main>
+			<Page.Main fullPage>
 				<EntityList />
 			</Page.Main>
 			<Page.Footer>

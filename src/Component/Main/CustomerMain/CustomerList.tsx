@@ -3,93 +3,120 @@ import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/st
 import { loadCustomers } from '../../../infrastructure/Store/Slices/CustomerSlices/GetAllCustomer-Slice';
 import { Toast } from 'primereact/toast';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
-import { useNavigate } from 'react-router-dom';
-import { CustomerDto } from '../../../infrastructure/dto/CustomerDto';
-import { deleteCustomers } from '../../../infrastructure/Store/Slices/CustomerSlices/DeleteCustomer-Slice';
 import { totalRecords } from '../../../infrastructure/Store/Slices/CustomerSlices/TotalRecordOfCustomer';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faPen } from '@fortawesome/free-solid-svg-icons';
-
-
 
 const CustomerList = () => {
     const dispatch = useAppDispatch();
     const customers = useAppSelector((state) => state.customers.data);
-    const state = useAppSelector((state) => state.deleteCustomer.state);
-
-    const totalRecordState = useAppSelector((state) => state.totalRecord.state);
     const totalRecord = useAppSelector((state) => state.totalRecord.data);
 
     const [first, setFirst] = useState<number>(0);
-    const [rows, setRows] = useState<number>(3); 
+    const [rows, setRows] = useState<number>(3);
+    const [selectedFilter, setSelectedFilter] = useState<string>(''); // Seçilen filtre
+    const [nameFilter, setNameFilter] = useState<string>(''); 
+    const [tcknFilter, setTcknFilter] = useState<string>(''); 
+    const [birthDateStart, setBirthDateStart] = useState<string>(''); 
+    const [birthDateEnd, setBirthDateEnd] = useState<string>(''); 
+
     const toast = useRef<Toast>(null);
 
-
-
-
-
     useEffect(() => {
-        dispatch(totalRecords())
-        dispatch(loadCustomers({ page: first / rows, size: rows })); 
-    }, [first, rows]);
+        dispatch(totalRecords());
+        dispatch(loadCustomers({ 
+            page: first / rows, 
+            size: rows, 
+            name: nameFilter, 
+            tckn: tcknFilter, 
+            birthDateStart: birthDateStart, 
+            birthDateEnd: birthDateEnd 
+        }));
+    }, [first, rows, nameFilter, tcknFilter, birthDateStart, birthDateEnd]);
 
     const onPageChange = (event: PaginatorPageChangeEvent) => {
         setFirst(event.first);
         setRows(event.rows);
     };
 
-    const removeCustomer = async (tckn: string) => {
-        try {
-            
-            const resultAction = await dispatch(deleteCustomers({ tckn }));
-            
-            if (deleteCustomers.fulfilled.match(resultAction)) {
-                
-                dispatch(loadCustomers({ page: first / rows, size: rows }));
-                
-                toast.current?.show({ 
-                    severity: 'info', 
-                    summary: 'Başarılı', 
-                    detail: 'Müşteri Başarıyla Silindi.', 
-                    life: 2000 
-                });
-            } else {
-                
-                toast.current?.show({ 
-                    severity: 'error', 
-                    summary: 'Hata', 
-                    detail: 'Müşteri silinemedi.', 
-                    life: 2000 
-                });
-            }
-        } catch (error) {
-            console.error('Silme işlemi sırasında bir hata oluştu:', error);
-            toast.current?.show({ 
-                severity: 'error', 
-                summary: 'Hata', 
-                detail: 'Bir hata oluştu, lütfen tekrar deneyin.', 
-                life: 2000 
-            });
-        }
+    const handleFilterChange = () => {
+        setFirst(0); 
+        dispatch(loadCustomers({ 
+            page: 0, 
+            size: rows, 
+            name: nameFilter, 
+            tckn: tcknFilter, 
+            birthDateStart: birthDateStart, 
+            birthDateEnd: birthDateEnd 
+        }));
     };
-    
 
-    const navigate = useNavigate();
-    const updateCustomer = (customer: CustomerDto) => {
-        
-        const customerData = {
-            customer
-        };
-   
-        navigate('/customer/updateCustomer', { state: { customer: customerData } });
+    const clearFilters = () => {
+        setNameFilter('');
+        setTcknFilter('');
+        setBirthDateStart('');
+        setBirthDateEnd('');
+        handleFilterChange();
+    };
 
-
+    const handleFilterSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedFilter(e.target.value);
     };
 
     return (
         <div className="card">
             <Toast ref={toast} />
+
+            <div className="filter-selection mb-4">
+                <select value={selectedFilter} color='red' onChange={handleFilterSelection} className="form-control">
+                    <option value="">Filtre Seçiniz</option>
+                    <option value="name">İsme Göre</option>
+                    <option value="tckn">TCKN'ye Göre</option>
+                    <option value="birthDate">Doğum Tarihi Aralığına Göre</option>
+                </select>
+            </div>
+
+            {selectedFilter === 'name' && (
+                <input 
+                    type="text" 
+                    placeholder="İsme Göre Filtrele" 
+                    value={nameFilter} 
+                    onChange={(e) => setNameFilter(e.target.value)} 
+                    className="form-control mb-3"
+                />
+            )}
+            {selectedFilter === 'tckn' && (
+                <input 
+                    type="text" 
+                    placeholder="TCKN'ye Göre Filtrele" 
+                    value={tcknFilter} 
+                    onChange={(e) => setTcknFilter(e.target.value)} 
+                    className="form-control mb-3"
+                />
+            )}
+            {selectedFilter === 'birthDate' && (
+                <>
+                    <input 
+                        type="date" 
+                        placeholder="Doğum Tarihi Başlangıç" 
+                        value={birthDateStart} 
+                        onChange={(e) => setBirthDateStart(e.target.value)} 
+                        className="form-control mb-3"
+                    />
+                    <input 
+                        type="date" 
+                        placeholder="Doğum Tarihi Bitiş" 
+                        value={birthDateEnd} 
+                        onChange={(e) => setBirthDateEnd(e.target.value)} 
+                        className="form-control mb-3"
+                    />
+                </>
+            )}
+            <div>
+            <button onClick={handleFilterChange} className="btn btn-primary col-2">Filtrele</button>
+                
+            <button onClick={clearFilters} className="btn btn-secondary col-2">Temizle</button>
+            </div>
+            
+
             <table className="table">
                 <thead>
                     <tr>
@@ -101,8 +128,6 @@ const CustomerList = () => {
                         <th scope="col">Cinsiyet</th>
                         <th scope="col">Email</th>
                         <th scope="col">Telefon</th>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -116,20 +141,11 @@ const CustomerList = () => {
                             <td>{customer.gender}</td>
                             <td>{customer.email}</td>
                             <td>{customer.phone}</td>
-                            <td>
-                                {customer.id > 0 && (
-                                    <button className='btn btn-danger' onClick={() => removeCustomer(customer.tckn) }><FontAwesomeIcon icon={faTrash} /></button>
-                                )}
-                            </td>
-                            <td>
-                                {customer.id > 0 && (
-                                    <button className='btn btn-info' onClick={() => updateCustomer(customer) }><FontAwesomeIcon icon={faPen} /></button>
-                                )}
-                            </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
             <Paginator          
                 first={first}
                 rows={rows}
