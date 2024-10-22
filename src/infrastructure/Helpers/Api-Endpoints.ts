@@ -1,5 +1,5 @@
 const baseUrl_v1 = 'http://localhost:8080/api/v1';
-const baseUrl_v2 = 'http://localhost:8080/api/v2';
+const baseUrl_v2 = 'http://localhost:8080/api/v1';
 
 export default {
 	Customers: {

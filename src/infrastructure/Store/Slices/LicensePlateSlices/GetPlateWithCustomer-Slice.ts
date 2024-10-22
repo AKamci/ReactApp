@@ -21,14 +21,14 @@ const initialState = {
     errorMessage: null    
 } as LicensePlateState;
 
-export const getPlateWithCustomer = createAsyncThunk<LicensePlateDto, { plate: string }, { state: LicensePlateState }>(
+export const getPlateWithCustomer = createAsyncThunk<LicensePlateDto, { plate: string, policyType: string, policyStartDate:Date, policyEndDate:Date }, { state: LicensePlateState }>(
     'licensePlate/WCustomer',
-    async ({ plate }, { rejectWithValue }) => {
+    async ({ plate, policyType, policyStartDate, policyEndDate }, { rejectWithValue }) => {
         console.log("getCustomers with tckn:", plate);
         
         try {
             const response = await axios.get<LicensePlateDto>(Endpoints.LicensePlate.GetWithCustomer, {
-                params: { plate }
+                params: { plate, policyType, policyStartDate, policyEndDate }
             });
             console.log("Status:", response.status);
             return response.data;
