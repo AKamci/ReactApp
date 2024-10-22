@@ -22,6 +22,8 @@ const GetCarPolicy = () => {
     useEffect(() => {
         console.log("Car Policy Triggered");
         console.log(carPolicyEntity);
+        console.log(carPolicyEntity.tckn);
+
     }, [carPolicyEntity]);
 
     const load = async () => {
@@ -91,13 +93,14 @@ const GetCarPolicy = () => {
             <h3>POLİÇE NUMARASINI GİRİNİZ</h3>
             <div className="card flex justify-content-center">
                 <InputText 
-                    placeholder="POLİÇE NUMARASI" 
+                    keyfilter="int" 
+                    placeholder="POLİÇE NUMARASI GİRİNİZ" 
                     value={id} 
                     onChange={(e) => setId(e.target.value)}
                 />
             </div>
             <div className="card flex flex-wrap justify-content-center gap-3">
-                <button type="button" className="btn btn-primary" onClick={load}>SEARCH</button>
+                <button type="button" className="btn btn-primary" onClick={load}> ARAMA </button>
             </div>
 
             <table className="table">
@@ -120,23 +123,23 @@ const GetCarPolicy = () => {
                 <tbody>
                     {dataToDisplay.map((carPolicy) => (
                         <tr key={`${carPolicy.id}`}>
-                            <td>{carPolicy.id}</td>
+                            <td>{carPolicy.tckn === undefined ? '' : carPolicy.id}</td>
                             <td>{carPolicy.policyName}</td>
                             <td>{carPolicy.policyDescription}</td>
                             <td>{carPolicy.policyType}</td>
-                            <td>{carPolicy.policyStatus ? 'Active' : 'Inactive'}</td>
+                            <td>{carPolicy.tckn === undefined ? '' :carPolicy.policyStatus ? 'Active' : 'Inactive'}</td>
                             <td>{carPolicy.policyStartDate ? new Date(carPolicy.policyStartDate).toLocaleDateString() : ''}</td>
                             <td>{carPolicy.policyEndDate ? new Date(carPolicy.policyEndDate).toLocaleDateString() : ''}</td>
                             <td>{carPolicy.policyAmount}</td>
                             <td>{carPolicy.licensePlateNumber}</td>
                             <td>{carPolicy.tckn}</td>
                             <td>
-                                {carPolicyEntity.id > 0 && (
+                                {carPolicyEntity.policyAmount > 0 && (
                                     <button className='btn btn-danger' onClick={() => removeCarPolicy(carPolicy.id)}><FontAwesomeIcon icon={faTrash} /></button>
                                 )}
                             </td>
                             <td>
-                                {carPolicyEntity.id > 0 && (
+                                {carPolicyEntity.policyAmount > 0 && (
                                     <button className='btn btn-info' onClick={() => updateCarPolicy(carPolicy)}><FontAwesomeIcon icon={faPen} /></button>
                                 )}
                             </td>

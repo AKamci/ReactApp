@@ -30,6 +30,7 @@ const Routers = () => {
 				<Route path='/carPolicy/getCarPolicy' element={<GetCarPolicyPage />} />
 				<Route path='/carPolicy/list' element={<CarPolicyListPage />} />
 				<Route path='/carPolicy/updateCarPolicy' element={<UpdateCarPolicyPage />} />
+				
 
 				
 			</Routes>

@@ -12,25 +12,25 @@ const CustomerList = () => {
 
     const [first, setFirst] = useState<number>(0);
     const [rows, setRows] = useState<number>(3);
-    const [selectedFilter, setSelectedFilter] = useState<string>(''); // Seçilen filtre
+    const [selectedFilter, setSelectedFilter] = useState<string>('');
     const [nameFilter, setNameFilter] = useState<string>(''); 
     const [tcknFilter, setTcknFilter] = useState<string>(''); 
     const [birthDateStart, setBirthDateStart] = useState<string>(''); 
     const [birthDateEnd, setBirthDateEnd] = useState<string>(''); 
-
     const toast = useRef<Toast>(null);
 
     useEffect(() => {
         dispatch(totalRecords());
-        dispatch(loadCustomers({ 
-            page: first / rows, 
-            size: rows, 
-            name: nameFilter, 
-            tckn: tcknFilter, 
-            birthDateStart: birthDateStart, 
-            birthDateEnd: birthDateEnd 
-        }));
-    }, [first, rows, nameFilter, tcknFilter, birthDateStart, birthDateEnd]);
+    }, [dispatch, totalRecord]);
+
+    useEffect(() => {
+        if (!nameFilter && !tcknFilter && !birthDateStart && !birthDateEnd) {
+            dispatch(loadCustomers({ 
+                page: first / rows, 
+                size: rows 
+            }));
+        }
+    }, [first, rows, dispatch, nameFilter, tcknFilter, birthDateStart, birthDateEnd]);
 
     const onPageChange = (event: PaginatorPageChangeEvent) => {
         setFirst(event.first);
@@ -54,7 +54,7 @@ const CustomerList = () => {
         setTcknFilter('');
         setBirthDateStart('');
         setBirthDateEnd('');
-        handleFilterChange();
+        handleFilterChange(); 
     };
 
     const handleFilterSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -66,7 +66,7 @@ const CustomerList = () => {
             <Toast ref={toast} />
 
             <div className="filter-selection mb-4">
-                <select value={selectedFilter} color='red' onChange={handleFilterSelection} className="form-control">
+                <select value={selectedFilter} onChange={handleFilterSelection} className="form-control">
                     <option value="">Filtre Seçiniz</option>
                     <option value="name">İsme Göre</option>
                     <option value="tckn">TCKN'ye Göre</option>
@@ -111,11 +111,9 @@ const CustomerList = () => {
                 </>
             )}
             <div>
-            <button onClick={handleFilterChange} className="btn btn-primary col-2">Filtrele</button>
-                
-            <button onClick={clearFilters} className="btn btn-secondary col-2">Temizle</button>
+                <button onClick={handleFilterChange} className="btn btn-primary col-2">Filtrele</button>
+                <button onClick={clearFilters} className="btn btn-secondary col-2">Temizle</button>
             </div>
-            
 
             <table className="table">
                 <thead>

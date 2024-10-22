@@ -1,12 +1,13 @@
+import React, { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Calendar } from 'primereact/calendar';
-import React, { useRef, useState } from 'react';
 import { ConfirmPopup } from 'primereact/confirmpopup';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/store';
 import { createCustomer } from '../../../infrastructure/Store/Slices/CustomerSlices/CreateCustomer-Slice';
 import ApiState from '../../../infrastructure/Enums/ApiState';
+import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai';
 
 const CreateCustomer = () => {
   const dispatch = useAppDispatch();
@@ -26,43 +27,66 @@ const CreateCustomer = () => {
   const [address, setAddress] = useState('');
   const [gender, setGender] = useState('');
   const [tckn, setTckn] = useState('');
+  const [tcknValid, setTcknValid] = useState<boolean>(false);
+  
+  const [nameValid, setNameValid] = useState<boolean>(false);
+  const [phoneValid, setPhoneValid] = useState<boolean>(false);
+  const [emailValid, setEmailValid] = useState<boolean>(false);
+
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const customerData = location.state?.customer;
-
-  
   const today = new Date();
-  const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate()); 
+  const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
   const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
 
-  const validateEmail = (email: string) => {
-    
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail|hotmail|yahoo|outlook|live)\.(com|net|org|co|info|biz)$/;
-    return emailRegex.test(email);
+  const validateTckn = (value: string) => {
+    const numericValue = value.replace(/\D/g, '');
+    if (numericValue.length === 11) {
+      setTcknValid(true);
+    } else {
+      setTcknValid(false);
+    }
+    setTckn(numericValue);
   };
-  const validatePhone = (phone: string) => {
-    const phoneRegex = /^(05\d{9}|[0-9]{3}-[0-9]{3}-[0-9]{4})$/;
-    return phoneRegex.test(phone);
-};
+
+  const validateName = (value: string) => {
+    if (value.length > 255) {
+      setNameValid(false); 
+      return; 
+    }
+    const regex = /^[A-Za-zğüşıöçĞÜŞİÖÇ\s]*$/; 
+    if (!regex.test(value)) {
+      const cleanedValue = value.replace(/[^A-Za-zğüşıöçĞÜŞİÖÇ\s]/g, ''); 
+      setName(cleanedValue); 
+      setNameValid(cleanedValue.trim() !== ''); 
+    } else {
+      setName(value);
+      setNameValid(value.trim() !== '');
+    }
+  };
+  
+  
+  const validatePhone = (value: string) => {
+    const regex = /^\d{10}$/; 
+    setPhoneValid(regex.test(value));
+    setPhone(value);
+  };
+
+  const validateEmail = (value: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+    setEmailValid(regex.test(value));
+    setEmail(value);
+  };
 
   const validateForm = () => {
-    if (tckn.length !== 11) { 
+    if (!tcknValid) {
       toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'TCKN 11 haneli olmalıdır.', life: 3000 });
       return false;
     }
-    if (!name || !phone || !email || !address || !gender || !birthDate) {
-      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Tüm alanlar doldurulmalıdır.', life: 3000 });
-      return false;
-    }
-    if (!validateEmail(email)) {
-      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Geçersiz e-posta formatı.', life: 3000 });
-      return false;
-    }
-    if(!validatePhone(phone))
-    {
-      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Geçersiz telefon formatı.', life: 3000 });
+    if (!nameValid || !phoneValid || !emailValid || !address || !gender || !birthDate) {
+      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Tüm alanlar doldurulmalıdır ve geçerli olmalıdır.', life: 3000 });
       return false;
     }
     return true;
@@ -70,44 +94,37 @@ const CreateCustomer = () => {
 
   const accept = async () => {
     const formData = {
-      tckn: tckn, 
+      tckn: tckn,
       name: name,
       phone: phone,
       email: email,
       address: address,
-      birthDay: birthDate ? birthDate.toISOString().split('T')[0] : null, 
+      birthDay: birthDate ? birthDate.toISOString().split('T')[0] : null,
       gender: gender,
     };
-    
-    console.log(JSON.stringify(formData, null, 2));
-    console.log('State:', state);
-    console.log('Customer:', customer);
-    console.log('Active Customer:', activeCustomer);
-    console.log('Error Message:', errorMessage);
-    console.log('Response Status:', responseStatus);
-      
+
     dispatch(createCustomer({
       dto: {
-        tckn: tckn, 
+        tckn: tckn,
         name: name,
         phone: phone,
         email: email,
         address: address,
-        birthDay: birthDate ? birthDate.toISOString().split('T')[0] : null, 
+        birthDay: birthDate ? birthDate.toISOString().split('T')[0] : null,
         gender: gender,
       }
     }));
 
-    if (responseStatus === 409) { 
+    if (responseStatus === 409) {
       toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Girilen TCKN zaten mevcuttur.', life: 2000 });
     } else {
       setLoading(true);
       await toast.current?.show({ severity: 'info', summary: 'Mesaj', detail: 'Müşteri Başarıyla Oluşturuldu.', life: 2000 });
-      
+
       setTimeout(() => {
         setLoading(false);
         navigate('/customer/customerList');
-      }, 2000); 
+      }, 2000);
     }
   };
 
@@ -122,31 +139,82 @@ const CreateCustomer = () => {
     }
   };
 
+  const getInputStyle = (isValid: boolean | undefined) => {
+    if (isValid === undefined) return {};
+    return { borderColor: isValid ? 'green' : 'red' };
+  };
+
   return (
     <form className="row g-3" onSubmit={(e) => e.preventDefault()}>
       <div className="col-md-2">
         <label htmlFor="inputTckn" className="form-label">TCKN</label>
-        <input
-          type="text"
-          className="form-control"
-          id="inputTckn"
-          disabled={loading}
-          value={tckn} 
-          onChange={(e) => setTckn(e.target.value)} 
-        />
+        <div className="input-group">
+          <input
+            type="text"
+            className="form-control"
+            id="inputTckn"
+            disabled={loading}
+            value={tckn}
+            onChange={(e) => validateTckn(e.target.value)}
+            style={getInputStyle(tcknValid)}
+          />
+          <span className="input-group-text">
+            {tcknValid ? <AiOutlineCheckCircle color="green" size={12} /> : <AiOutlineCloseCircle color="red" size={12} />}
+          </span>
+        </div>
       </div>
       <div className="col-md-3">
         <label htmlFor="inputName" className="form-label">İsim</label>
-        <input type="text" className="form-control" id="inputName" disabled={loading} value={name} onChange={(e) => setName(e.target.value)} />
+        <div className="input-group">
+          <input
+            type="text"
+            className="form-control"
+            id="inputName"
+            disabled={loading}
+            value={name}
+            onChange={(e) => validateName(e.target.value)}
+            style={getInputStyle(nameValid)}
+          />
+          <span className="input-group-text">
+            {nameValid ? <AiOutlineCheckCircle color="green" size={12} /> : <AiOutlineCloseCircle color="red" size={12} />}
+          </span>
+        </div>
       </div>
       <div className="col-md-3">
         <label htmlFor="inputPhone" className="form-label">Telefon</label>
-        <input type="text" className="form-control" id="inputPhone" disabled={loading} value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <div className="input-group">
+          <input
+            type="text"
+            className="form-control"
+            id="inputPhone"
+            disabled={loading}
+            value={phone}
+            onChange={(e) => validatePhone(e.target.value)}
+            style={getInputStyle(phoneValid)}
+          />
+          <span className="input-group-text">
+            {phoneValid ? <AiOutlineCheckCircle color="green" size={12} /> : <AiOutlineCloseCircle color="red" size={12} />}
+          </span>
+        </div>
       </div>
       <div className="col-md-4">
         <label htmlFor="inputEmail" className="form-label">E-Mail</label>
-        <input type="email" className="form-control" id="inputEmail" disabled={loading} value={email} onChange={(e) => setEmail(e.target.value)} />
+        <div className="input-group">
+          <input
+            type="email"
+            className="form-control"
+            id="inputEmail"
+            disabled={loading}
+            value={email}
+            onChange={(e) => validateEmail(e.target.value)}
+            style={getInputStyle(emailValid)}
+          />
+          <span className="input-group-text">
+            {emailValid ? <AiOutlineCheckCircle color="green" size={12} /> : <AiOutlineCloseCircle color="red" size={12} />}
+          </span>
+        </div>
       </div>
+
       <div className="col-12">
         <label htmlFor="inputAddress" className="form-label">Adres</label>
         <input type="text" className="form-control" id="inputAddress" disabled={loading} value={address} onChange={(e) => setAddress(e.target.value)} />
@@ -190,9 +258,7 @@ const CreateCustomer = () => {
             acceptLabel="Evet" 
             rejectLabel="Hayır" 
           />
-          <div className="card flex justify-content-center col-2">
-            <Button ref={buttonEl} onClick={handleConfirm} icon="pi pi-check" label={loading ? 'Yönlendiriliyor...' : 'Onayla'} />
-          </div>
+          <Button ref={buttonEl} onClick={handleConfirm}  icon="pi pi-check" label={loading ? 'Yönlendiriliyor...' : 'Onayla'} />
         </>
       </div>
     </form>

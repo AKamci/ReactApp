@@ -20,6 +20,7 @@ import GetCarPolicy from './Slices/CarPolicySlices/GetCarPolicy-Slice';
 import GetAllCarPolicyByDate from './Slices/CarPolicySlices/GetCarPolicyByDate';
 import GetAllCarPolicyByPlate from './Slices/CarPolicySlices/GetCarPolicyByPlate-Slice';
 import TotalRecordOfCarPolicy from './Slices/CarPolicySlices/TotalRecordOfCarPolicy-Slice';
+import GetPlateWithCustomer  from './Slices/LicensePlateSlices/GetPlateWithCustomer-Slice';
 
 
 const store = configureStore({
@@ -44,6 +45,11 @@ const store = configureStore({
 		getCarPolicyByDate: GetAllCarPolicyByDate,
 		getCarPolicyByPlate: GetAllCarPolicyByPlate,
 		totalRecordCarPolicy: TotalRecordOfCarPolicy,
+
+
+		//	LICENSE PLATE STORE
+
+		getPlateWithCustomer: GetPlateWithCustomer
 
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),

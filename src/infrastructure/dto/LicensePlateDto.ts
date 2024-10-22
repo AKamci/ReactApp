@@ -1,9 +1,11 @@
 
 import { CarDto } from './CarDto';
+import { CustomerDto } from './CustomerDto';
 
 
 export interface LicensePlateDto {
     id: number;
     plate: string; 
-    car: CarDto; 
+    car: CarDto;
+    customer: CustomerDto 
 }

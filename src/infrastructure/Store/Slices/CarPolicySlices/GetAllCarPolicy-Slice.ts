@@ -21,12 +21,35 @@ const initialState = {
     errorMessage: null    
 } as CarPolicyState;
 
-export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: number, size: number }, { state: CarPolicyState }>(
+export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: number, size: number, policyName: string,
+    policyDescription: string,  policyType: string,  policyStatus:boolean,  policyAmount: number,  
+    policyPlateNumber: string, tckn: string,  policyStartDate: Date,  policyEndDate: Date}, 
+    { state: CarPolicyState }>(
     'carPolicy/list',
-    async ({ page, size }, { rejectWithValue }) => {
+    async ({ page, size, policyName, policyDescription, 
+        policyType, policyStatus, policyAmount, policyPlateNumber, 
+        tckn, policyStartDate, policyEndDate
+    }, { rejectWithValue }) => {
        
         try {
-            const response = await axios.get<Array<CarPolicyDto>>(`${Endpoints.CarPolicy.GetAll}?page=${page}&size=${size}`);
+            let query = `${Endpoints.CarPolicy.GetAll}?page=${page}&size=${size}`;
+
+            if (policyName) query += `&policyName=${encodeURIComponent(policyName)}`;
+            if (policyDescription) query += `&policyDescription=${encodeURIComponent(policyDescription)}`;
+            if (policyType) query += `&policyType=${encodeURIComponent(policyType)}`;
+            if (policyStatus !== undefined) query += `&policyStatus=${policyStatus}`;
+            if (policyAmount) query += `&policyAmount=${encodeURIComponent(policyAmount)}`;
+            if (policyPlateNumber) query += `&policyPlateNumber=${encodeURIComponent(policyPlateNumber)}`;
+            if (tckn) query += `&tckn=${encodeURIComponent(tckn)}`;
+            if (policyStartDate) query += `&policyStartDate=${policyStartDate.toISOString()}`;
+            if (policyEndDate) query += `&policyEndDate=${policyEndDate.toISOString()}`;
+
+            console.log("Query: ");
+            console.log(query);
+            console.log(query.length);
+
+            const response = await axios.get<Array<CarPolicyDto>>(query);
+
             console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {

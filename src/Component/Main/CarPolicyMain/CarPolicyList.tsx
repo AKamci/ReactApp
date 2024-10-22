@@ -3,7 +3,6 @@ import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/st
 import { getAllCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/GetAllCarPolicy-Slice';
 import { Toast } from 'primereact/toast';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
-import { deleteCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/DeleteCarPolicy-Slice';
 import { totalRecordCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/TotalRecordOfCarPolicy-Slice';
 
 const CarPolicyList = () => {
@@ -25,15 +24,10 @@ const CarPolicyList = () => {
         dispatch(totalRecordCarPolicy());
         dispatch(getAllCarPolicy({ 
             page: first / rows, 
-            size: rows, 
-            policyName: policyNameFilter, 
-            policyType: policyTypeFilter, 
-            policyDateStart: policyDateStart, 
-            policyDateEnd: policyDateEnd 
+            size: rows 
         }));
-
-        console.log(totalRecord)
-    }, [first, rows, policyNameFilter, policyTypeFilter, policyDateStart, policyDateEnd]);
+        console.log(totalRecord);
+    }, [first, rows]);
 
     const onPageChange = (event: PaginatorPageChangeEvent) => {
         setFirst(event.first);

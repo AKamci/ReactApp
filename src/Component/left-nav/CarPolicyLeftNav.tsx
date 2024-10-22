@@ -1,30 +1,15 @@
-import React from 'react'
-import { useAppDispatch, useAppSelector } from '../../infrastructure/Store/store';
 import { NavLink } from 'react-router-dom';
-import { setActiveRequest } from '../../infrastructure/Store/Slices/CarPolicySlices/GetAllCarPolicy-Slice';
-
-
-
 
 const CarPolicyLeftNav = () => {
-
-  const dispatch = useAppDispatch();
-  const state = useAppSelector((state) => state.allCarPolicy.state);
-  const carPolicies = useAppSelector((state) => state.allCarPolicy.data);
-  const activeCarPolicy = useAppSelector((state) => state.allCarPolicy.activeRequest);
-
-
 
   return (
     <div className="list-group">
 
 <NavLink
     to="/carPolicy"
-    onClick={() => {
-        dispatch(setActiveRequest(null));
-    }}
+    end
     className={({ isActive }) =>
-        `list-group-item list-group-item-action ${isActive && activeCarPolicy === null ? 'active' : ''}`
+        `list-group-item list-group-item-action ${isActive ? 'active' : ''}`
     }
 >
     TÜM İŞLEMLER
@@ -32,11 +17,9 @@ const CarPolicyLeftNav = () => {
 
   <NavLink
     to="/carPolicy/createCarPolicy"
-    onClick={() => {
-        dispatch(setActiveRequest(1));
-    }}
+    end
     className={({ isActive }) =>
-        `list-group-item list-group-item-action ${isActive && activeCarPolicy === 1 ? 'active' : ''}`
+        `list-group-item list-group-item-action ${isActive ? 'active' : ''}`
     }
 >
     ARABA POLİÇESİ OLUŞTUR.
@@ -44,11 +27,9 @@ const CarPolicyLeftNav = () => {
 
 <NavLink
     to="/carPolicy/getCarPolicy"
-    onClick={() => {
-        dispatch(setActiveRequest(2));
-    }}
+    end
     className={({ isActive }) =>
-        `list-group-item list-group-item-action ${isActive && activeCarPolicy === 2 ? 'active' : ''}`
+        `list-group-item list-group-item-action ${isActive ? 'active' : ''}`
     }
 >
   ARABA POLİÇESİ BUL
@@ -56,19 +37,13 @@ const CarPolicyLeftNav = () => {
 
 <NavLink
     to="/carPolicy/list"
-    onClick={() => {
-        dispatch(setActiveRequest(3));
-    }}
+    end
     className={({ isActive }) =>
-        `list-group-item list-group-item-action ${isActive && activeCarPolicy === 3 ? 'active' : ''}`
+        `list-group-item list-group-item-action ${isActive? 'active' : ''}`
     }
 >
     TÜM ARABA POLİÇELERİNİ LİSTELE
 </NavLink>
-
-
-
-
   </div>
 
   )

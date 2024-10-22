@@ -21,12 +21,10 @@ export const updateCustomer = createAsyncThunk<CustomerDto, { dto: CustomerDto }
 	async ({ dto }) => {
 		console.log("Creating customer with dto:", dto);
 		
-		// Sending the dto as the request body
 		const response = await axios.put<CustomerDto>(Endpoints.Customers.Create, dto);
 		
 		console.log("Status: ")
 		console.log(response.status);
-		//console.log(response.data);
 
 		return response.data;
 	}

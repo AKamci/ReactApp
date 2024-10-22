@@ -14,14 +14,35 @@ export interface CustomerState {
 
 const initialState = { state: ApiState.Idle, activeRequest: null, data:[], totalRecords:0 } as CustomerState;
 
-export const loadCustomers: AsyncThunk<Array<CustomerDto>, { page: number, size: number }, CustomerState> = createAsyncThunk(
+
+export const loadCustomers: AsyncThunk<
+    Array<CustomerDto>, 
+    { page: number; size: number; name?: string; address?: string; phone?: string; email?: string; birthDay?: Date; gender?: string }, 
+    CustomerState
+> = createAsyncThunk(
     'customer/list',
-    async ({ page, size }) => {
-        const response = await axios.get<Array<CustomerDto>>(`${Endpoints.Customers.List}?page=${page}&size=${size}`);
+    async ({ page, size, name, address, phone, email, birthDay, gender }) => {
+        let query = `${Endpoints.Customers.List}?page=${page}&size=${size}`;
+
+        if (name) query += `&name=${encodeURIComponent(name)}`;
+        if (address) query += `&address=${encodeURIComponent(address)}`;
+        if (phone) query += `&phone=${encodeURIComponent(phone)}`;
+        if (email) query += `&email=${encodeURIComponent(email)}`;
+        if (birthDay) query += `&birthDay=${birthDay.toISOString()}`;
+        if (gender) query += `&gender=${encodeURIComponent(gender)}`;
+
+		console.log("Query: ")
+		console.log(query)
+
+        const response = await axios.get<Array<CustomerDto>>(query);
+
+        console.log(response.status);
+        console.log(response.statusText);
+		
+
         return response.data;
     }
 );
-
 
 const customersSlice = createSlice({
 	name: 'customers',

@@ -133,15 +133,11 @@ const GetCustomer = () => {
     };
 
     const navigate = useNavigate();
-    const updateCustomer = (customer: CustomerDto) => {
-        
+    const updateCustomer = (customer: CustomerDto) => {        
         const customerData = {
             customer
         };
-   
         navigate('/customer/updateCustomer', { state: { customer: customerData } });
-
-
     };
 ;
 
