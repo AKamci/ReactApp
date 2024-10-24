@@ -9,13 +9,15 @@ import { Toast } from 'primereact/toast';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPen } from '@fortawesome/free-solid-svg-icons';
+import { updateCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/UpdateCarPolicy-Slice';
 
 const GetCarPolicy = () => {
     const dispatch = useAppDispatch();
     const carPolicyEntity = useAppSelector((state) => state.getCarPolicy.data);
     const responseStatus = useAppSelector((state) => state.getCarPolicy.responseStatus);
+    const UpdateResponseStatus = useAppSelector((state) => state.updateCarPolicy.responseStatus);
     const [loading, setLoading] = useState<boolean>(false);
-    const [id, setId] = useState<number>(0); 
+    const [policyId, setPolicyId] = useState<number>(0); 
     const toastRef = useRef<Toast>(null);
     const navigate = useNavigate();
 
@@ -27,43 +29,51 @@ const GetCarPolicy = () => {
     }, [carPolicyEntity]);
 
     const load = async () => {
-        console.log(id)
+        console.log(policyId);
         setLoading(true);
-        const response = await dispatch(getCarPolicy({ id }));
-        const condition = response.meta.requestStatus;
-
-        if (responseStatus === 404 || condition === 'rejected') {
+        
+        const response = await dispatch(getCarPolicy({ policyId }));
+        
+        const { payload, meta } = response;
+        const condition = meta.requestStatus;
+        
+        if ((payload && payload.status === 404) || condition === 'rejected') {
             toastRef.current?.show({ 
-                severity: 'info', 
-                summary: 'Info', 
-                detail: 'Car Policy Not Found.', 
+                severity: 'error', 
+                summary: 'Bilgilendirme', 
+                detail: 'Poliçe Bulunamadı.', 
                 life: 2000 
             });
+        } else {
+            console.log('Poliçe bulundu:', payload);
         }
+        
+        setLoading(false);
     };
 
-    const removeCarPolicy = async (id: number) => {
+    const removeCarPolicy = async (policyId: number) => {
         try {
-            const resultAction = await dispatch(deleteCarPolicy({ id }));
+            console.log(policyId, "policyId")
+            const resultAction = await dispatch(deleteCarPolicy({ policyId }));
             if (responseStatus === 200) {
                 toastRef.current?.show({ 
                     severity: 'info', 
                     summary: 'Success', 
-                    detail: 'Car Policy Deleted Successfully.', 
+                    detail: 'Poliçe Başarılı Bir Şekilde Silinmiştir.', 
                     life: 2000 
                 });
             } else if (responseStatus === 404) {
                 toastRef.current?.show({ 
                     severity: 'info', 
                     summary: 'Info', 
-                    detail: 'Car Policy Not Found.', 
+                    detail: 'Hata Oluştu', 
                     life: 2000 
                 });
             } else {
                 toastRef.current?.show({ 
                     severity: 'error', 
-                    summary: 'Error', 
-                    detail: 'Failed to delete the car policy.', 
+                    summary: 'Hata', 
+                    detail: 'Silerken Bir Hata Oldu', 
                     life: 2000 
                 });
             }
@@ -71,14 +81,16 @@ const GetCarPolicy = () => {
             console.error('Error during deletion:', error);
             toastRef.current?.show({ 
                 severity: 'error', 
-                summary: 'Error', 
-                detail: 'An error occurred, please try again.', 
+                summary: 'Hata', 
+                detail: 'Lütfen Tekrar Deneyiniz. İşleminiz Yapılamadı.', 
                 life: 2000 
             });
         }
     };
 
-    const updateCarPolicy = (carPolicy: CarPolicyDto) => {
+    const updateCarPolicyFunc = (carPolicy: CarPolicyDto) => {
+
+         
         const carPolicyData = {
             carPolicy
         };
@@ -95,8 +107,8 @@ const GetCarPolicy = () => {
                 <InputText 
                     keyfilter="int" 
                     placeholder="POLİÇE NUMARASI GİRİNİZ" 
-                    value={id} 
-                    onChange={(e) => setId(e.target.value)}
+                    value={policyId} 
+                    onChange={(e) => setPolicyId(e.target.value)}
                 />
             </div>
             <div className="card flex flex-wrap justify-content-center gap-3">
@@ -122,8 +134,9 @@ const GetCarPolicy = () => {
                 </thead>
                 <tbody>
                     {dataToDisplay.map((carPolicy) => (
-                        <tr key={`${carPolicy.id}`}>
-                            <td>{carPolicy.tckn === undefined ? '' : carPolicy.id}</td>
+                         <tr key={`${carPolicy.policyId || 'default'}-${carPolicy.tckn || 'default'}`}>
+                        
+                            <td>{carPolicy.tckn === undefined ? '' : carPolicy.policyId}</td>
                             <td>{carPolicy.policyName}</td>
                             <td>{carPolicy.policyDescription}</td>
                             <td>{carPolicy.policyType}</td>
@@ -135,12 +148,12 @@ const GetCarPolicy = () => {
                             <td>{carPolicy.tckn}</td>
                             <td>
                                 {carPolicyEntity.policyAmount > 0 && (
-                                    <button className='btn btn-danger' onClick={() => removeCarPolicy(carPolicy.id)}><FontAwesomeIcon icon={faTrash} /></button>
+                                    <button className='btn btn-danger' onClick={() => removeCarPolicy(carPolicy.policyId)}><FontAwesomeIcon icon={faTrash} /></button>
                                 )}
                             </td>
                             <td>
                                 {carPolicyEntity.policyAmount > 0 && (
-                                    <button className='btn btn-info' onClick={() => updateCarPolicy(carPolicy)}><FontAwesomeIcon icon={faPen} /></button>
+                                    <button className='btn btn-info' onClick={() => updateCarPolicyFunc(carPolicy)}><FontAwesomeIcon icon={faPen} /></button>
                                 )}
                             </td>
                         </tr>

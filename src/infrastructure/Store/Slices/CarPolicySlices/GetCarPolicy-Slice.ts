@@ -21,16 +21,16 @@ const initialState = {
     errorMessage: null    
 } as CarPolicyState;
 
-export const getCarPolicy = createAsyncThunk<CarPolicyDto, { id: number }, { state: CarPolicyState }>(
+export const getCarPolicy = createAsyncThunk<CarPolicyDto, { policyId: number }, { state: CarPolicyState }>(
     'carPolicy',
-    async ({ id }, { rejectWithValue }) => {
+    async ({ policyId }, { rejectWithValue }) => {
         console.log("ID : ")
-        console.log(id)
+        console.log(policyId)
         
         try {
             const response = await axios.get<CarPolicyDto>(Endpoints.CarPolicy.Get, {
                 params: {				
-                    id: id
+                    policyId: policyId
                 }
             });
             console.log("Status:", response.status);

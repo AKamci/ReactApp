@@ -22,27 +22,29 @@ const initialState = {
 } as CarPolicyState;
 
 export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: number, size: number, policyName: string,
-    policyDescription: string,  policyType: string,  policyStatus:boolean,  policyAmount: number,  
-    policyPlateNumber: string, tckn: string,  policyStartDate: Date,  policyEndDate: Date}, 
+    policyDescription: string,  policyType: string,  policyStatus: Boolean,  policyAmount: number,  
+    licensePlateNumber: string, tckn: string,  policyStartDate: Date,  policyEndDate: Date}, 
     { state: CarPolicyState }>(
     'carPolicy/list',
     async ({ page, size, policyName, policyDescription, 
-        policyType, policyStatus, policyAmount, policyPlateNumber, 
+        policyType, policyStatus, policyAmount, licensePlateNumber, 
         tckn, policyStartDate, policyEndDate
     }, { rejectWithValue }) => {
        
+        console.log(policyEndDate)
+        console.log(policyStartDate)
         try {
             let query = `${Endpoints.CarPolicy.GetAll}?page=${page}&size=${size}`;
 
             if (policyName) query += `&policyName=${encodeURIComponent(policyName)}`;
             if (policyDescription) query += `&policyDescription=${encodeURIComponent(policyDescription)}`;
             if (policyType) query += `&policyType=${encodeURIComponent(policyType)}`;
-            if (policyStatus !== undefined) query += `&policyStatus=${policyStatus}`;
+            if (policyStatus !== null && policyStatus !== undefined) query += `&policyStatus=${policyStatus}`;
             if (policyAmount) query += `&policyAmount=${encodeURIComponent(policyAmount)}`;
-            if (policyPlateNumber) query += `&policyPlateNumber=${encodeURIComponent(policyPlateNumber)}`;
+            if (licensePlateNumber) query += `&licensePlateNumber=${encodeURIComponent(licensePlateNumber)}`;
             if (tckn) query += `&tckn=${encodeURIComponent(tckn)}`;
-            if (policyStartDate) query += `&policyStartDate=${policyStartDate.toISOString()}`;
-            if (policyEndDate) query += `&policyEndDate=${policyEndDate.toISOString()}`;
+            if (policyStartDate) query += `&policyStartDate=${policyStartDate}`;
+            if (policyEndDate) query += `&policyEndDate=${policyEndDate}`;
 
             console.log("Query: ");
             console.log(query);
@@ -54,7 +56,8 @@ export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: num
             return response.data;
         } catch (error: any) {
             
-            const status = error.response ? error.response.status : 500; 
+            const status = error.response ? error.response.status : 500;
+        
             const message = error.response?.data?.message || "An error occurred";
             console.error("Error status:", status, "Message:", message);
             return rejectWithValue({ status, message });

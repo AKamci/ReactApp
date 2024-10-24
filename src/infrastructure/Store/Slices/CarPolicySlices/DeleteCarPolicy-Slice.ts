@@ -21,15 +21,16 @@ const initialState = {
     errorMessage: null    
 } as CarPolicyState;
 
-export const deleteCarPolicy = createAsyncThunk<CarPolicyDto, { id: number }, { state: CarPolicyState }>(
+export const deleteCarPolicy = createAsyncThunk<CarPolicyDto, { policyId: number }, { state: CarPolicyState }>(
     'carPolicy',
-    async ({ id }, { rejectWithValue }) => {
-        console.log("getCustomers with tckn:", id);
+    async ({ policyId }, { rejectWithValue }) => {
+        console.log("getCustomers with tckn:", policyId);
+        
         
         try {
             const response = await axios.delete<CarPolicyDto>(Endpoints.CarPolicy.Create, {
                 params: {				
-                    id: id
+                    policyId: policyId
                 }
             });
             console.log("Status:", response.status);

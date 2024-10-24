@@ -49,71 +49,9 @@ const CustomerList = () => {
         }));
     };
 
-    const clearFilters = () => {
-        setNameFilter('');
-        setTcknFilter('');
-        setBirthDateStart('');
-        setBirthDateEnd('');
-        handleFilterChange(); 
-    };
-
-    const handleFilterSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedFilter(e.target.value);
-    };
-
     return (
         <div className="card">
             <Toast ref={toast} />
-
-            <div className="filter-selection mb-4">
-                <select value={selectedFilter} onChange={handleFilterSelection} className="form-control">
-                    <option value="">Filtre Seçiniz</option>
-                    <option value="name">İsme Göre</option>
-                    <option value="tckn">TCKN'ye Göre</option>
-                    <option value="birthDate">Doğum Tarihi Aralığına Göre</option>
-                </select>
-            </div>
-
-            {selectedFilter === 'name' && (
-                <input 
-                    type="text" 
-                    placeholder="İsme Göre Filtrele" 
-                    value={nameFilter} 
-                    onChange={(e) => setNameFilter(e.target.value)} 
-                    className="form-control mb-3"
-                />
-            )}
-            {selectedFilter === 'tckn' && (
-                <input 
-                    type="text" 
-                    placeholder="TCKN'ye Göre Filtrele" 
-                    value={tcknFilter} 
-                    onChange={(e) => setTcknFilter(e.target.value)} 
-                    className="form-control mb-3"
-                />
-            )}
-            {selectedFilter === 'birthDate' && (
-                <>
-                    <input 
-                        type="date" 
-                        placeholder="Doğum Tarihi Başlangıç" 
-                        value={birthDateStart} 
-                        onChange={(e) => setBirthDateStart(e.target.value)} 
-                        className="form-control mb-3"
-                    />
-                    <input 
-                        type="date" 
-                        placeholder="Doğum Tarihi Bitiş" 
-                        value={birthDateEnd} 
-                        onChange={(e) => setBirthDateEnd(e.target.value)} 
-                        className="form-control mb-3"
-                    />
-                </>
-            )}
-            <div>
-                <button onClick={handleFilterChange} className="btn btn-primary col-2">Filtrele</button>
-                <button onClick={clearFilters} className="btn btn-secondary col-2">Temizle</button>
-            </div>
 
             <table className="table">
                 <thead>

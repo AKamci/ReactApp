@@ -14,49 +14,111 @@ const CarPolicyList = () => {
     const [rows, setRows] = useState<number>(3);
     const [selectedFilter, setSelectedFilter] = useState<string>(''); 
     const [policyNameFilter, setPolicyNameFilter] = useState<string>(''); 
-    const [policyTypeFilter, setPolicyTypeFilter] = useState<string>(''); 
     const [policyDateStart, setPolicyDateStart] = useState<string>(''); 
     const [policyDateEnd, setPolicyDateEnd] = useState<string>(''); 
 
+    const [filterCounter, setFilterCounter] = useState(0);
+    const [policyTypeFilter, setPolicyTypeFilter] = useState<string>(''); 
+    const [customerTCKN, setCustomerTCKN] = useState<string>('');
+    const [carPlate, setCarPlate] = useState<string>(''); 
+    const [policyStatus, setPolicyStatus] = useState<boolean | null>(null);
     const toast = useRef<Toast>(null);
+    const [filtersCleared, setFiltersCleared] = useState<boolean>(false); // New state to track clearing filters
+
 
     useEffect(() => {
         dispatch(totalRecordCarPolicy());
         dispatch(getAllCarPolicy({ 
             page: first / rows, 
-            size: rows 
+            size: rows,
+            policyStatus: policyStatus,
+            tckn: customerTCKN ? customerTCKN : null,
+            policyType: policyTypeFilter ? policyTypeFilter : null, 
+            licensePlateNumber: carPlate ? carPlate : null, 
+            policyStartDate: policyDateStart ? policyDateStart.toISOString().split('T')[0] : null, 
+            policyEndDate: policyDateEnd ? policyDateEnd.toISOString().split('T')[0] : null
         }));
         console.log(totalRecord);
-    }, [first, rows]);
+        console.log("CAR POLICIES");
+        console.log(carPolicies);
+    }, [first, rows, filtersCleared]);
+
+
+    const validateTCKN = (customerTCKN: string) => {
+        const tcknRegex = /^[0-9]{11}$/;
+        return tcknRegex.test(customerTCKN);
+    };
+    
+    const validateCarPlate = (carPlate: string) => {
+        const plateRegex = /^(0[1-9]|[1-7][0-9]|80|81)[A-Z]{1,4}[0-9]{4}$/;
+        return plateRegex.test(carPlate);
+    };
+
+    const handleApplyFilter = () => {
+        if (selectedFilter === 'customerTckn' && !validateTCKN(customerTCKN)) {
+            toast.current.show({ severity: 'error', summary: 'Hata', detail: 'TCKN 11 haneli ve sadece rakamlardan oluşmalıdır!', life: 3000 });
+            return;
+        }
+        
+        if (selectedFilter === 'carPlate' && !validateCarPlate(carPlate)) {
+            toast.current.show({ severity: 'error', summary: 'Hata', detail: 'Araç plakası geçerli bir formatta olmalıdır!', life: 3000 });
+            return;
+        }
+    
+        
+        handleFilterChange();
+    };
+
 
     const onPageChange = (event: PaginatorPageChangeEvent) => {
         setFirst(event.first);
         setRows(event.rows);
     };
 
-    const handleFilterChange = () => {
+    const handleFilterChange = async () => {
+        await dispatch(totalRecordCarPolicy());
         setFirst(0); 
-        dispatch(getAllCarPolicy({ 
+        await dispatch(getAllCarPolicy({ 
             page: 0, 
             size: rows, 
-            policyName: policyNameFilter, 
+            policyStatus: policyStatus,
+            tckn: customerTCKN,
             policyType: policyTypeFilter, 
-            policyDateStart: policyDateStart, 
-            policyDateEnd: policyDateEnd 
+            licensePlateNumber: carPlate, 
+            policyStartDate: policyDateStart, 
+            policyEndDate: policyDateEnd,
         }));
+        await dispatch(totalRecordCarPolicy());
+        console.log(totalRecord)
+        console.log("handleFilterChange :")
+        console.log(policyStatus, policyTypeFilter, carPlate, customerTCKN, policyDateStart, policyDateEnd)
+        console.log(carPolicies)
     };
 
-    const clearFilters = () => {
+    const clearFilters = async () => {
         setPolicyNameFilter('');
         setPolicyTypeFilter('');
         setPolicyDateStart('');
         setPolicyDateEnd('');
-        handleFilterChange();
+        setCarPlate('');
+        setCustomerTCKN('');
+        setPolicyStatus(null);
+        
+
+        const newCounter = filterCounter + 1;
+        setFilterCounter(newCounter);
+
+        if (newCounter % 2 === 1) {
+            alert("Filtre Temizlendi --> Tüm Müşteriler için tekrar temizleye tıklayınız.");
+        }
+        await handleFilterChange();
     };
 
     const handleFilterSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedFilter(e.target.value);
     };
+
+
 
     return (
         <div className="card">
@@ -65,27 +127,53 @@ const CarPolicyList = () => {
             <div className="filter-selection mb-4">
                 <select value={selectedFilter} onChange={handleFilterSelection} className="form-control">
                     <option value="">Filtre Seçiniz</option>
-                    <option value="policyName">Poliçe İsmine Göre</option>
+                    <option value="policyStatus">Poliçe Durumuna Göre</option>
                     <option value="policyType">Poliçe Türüne Göre</option>
-                    <option value="policyDate">Poliçe Tarihine Göre</option>
+                    <option value="customerTckn">Müşteri TCKN'a Göre</option>
+                    <option value="carPlate">Araç Plakasına Göre</option>
+                    <option value="policyDate">Aktif Tarihe Göre</option>
                 </select>
             </div>
 
-            {selectedFilter === 'policyName' && (
+
+
+            {selectedFilter === 'policyStatus' && (
+                <select 
+                    value={policyStatus !== null ? policyStatus.toString() : ''} 
+                    onChange={(e) => setPolicyStatus(e.target.value === 'true')} 
+                    className="form-control mb-3"
+                >
+                    <option value=''>Poliçe Durumunu Seçin</option>
+                    <option value="true">Aktif</option>
+                    <option value="false">Pasif</option>
+                </select>
+            )}
+            {selectedFilter === 'policyType' && (
+                <select 
+                    value={policyTypeFilter} 
+                    onChange={(e) => setPolicyTypeFilter(e.target.value)} 
+                    className="form-control mb-3"
+                >
+                    <option value=''>Poliçe Durumunu Seçin</option>
+                    <option value="Kasko">Kasko</option>
+                    <option value="Trafik">Trafik</option>
+                </select>
+            )}
+            {selectedFilter === 'customerTckn' && (
                 <input 
                     type="text" 
-                    placeholder="Poliçe İsmine Göre Filtrele" 
-                    value={policyNameFilter} 
-                    onChange={(e) => setPolicyNameFilter(e.target.value)} 
+                    placeholder="Poliçe TCKN'ye Göre Filtrele" 
+                    value={customerTCKN} 
+                    onChange={(e) => setCustomerTCKN(e.target.value)} 
                     className="form-control mb-3"
                 />
             )}
-            {selectedFilter === 'policyType' && (
+            {selectedFilter === 'carPlate' && (
                 <input 
                     type="text" 
-                    placeholder="Poliçe Türüne Göre Filtrele" 
-                    value={policyTypeFilter} 
-                    onChange={(e) => setPolicyTypeFilter(e.target.value)} 
+                    placeholder="Plakaya Göre Filtrele" 
+                    value={carPlate} 
+                    onChange={(e) => setCarPlate(e.target.value)} 
                     className="form-control mb-3"
                 />
             )}
@@ -107,8 +195,14 @@ const CarPolicyList = () => {
                     />
                 </>
             )}
+
+
+
+
+
+            
             <div>
-                <button onClick={handleFilterChange} className="btn btn-primary col-2">Filtrele</button>
+                <button onClick={handleApplyFilter} className="btn btn-primary col-2">Filtrele</button>
                 <button onClick={clearFilters} className="btn btn-secondary col-2">Temizle</button>
             </div>
 
@@ -129,8 +223,8 @@ const CarPolicyList = () => {
                 </thead>
                 <tbody>
                     {carPolicies.map((carPolicy) => (
-                        <tr key={carPolicy.id}>
-                            <td>{carPolicy.id}</td>
+                        <tr key={carPolicy.policyId}>
+                            <td>{carPolicy.policyId}</td>
                             <td>{carPolicy.policyName}</td>
                             <td>{carPolicy.policyDescription}</td>
                             <td>{carPolicy.policyType}</td>

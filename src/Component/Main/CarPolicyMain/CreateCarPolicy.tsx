@@ -13,14 +13,11 @@ import { getPlateWithCustomer } from '../../../infrastructure/Store/Slices/Licen
 const CreateCarPolicy = () => {
   const dispatch = useAppDispatch();
   const carPolicy = useAppSelector((state) => state.createCarPolicy.data);
+  const responseStatus = useAppSelector((state) => state.createCarPolicy.responseStatus);
+
+
+
   const carPolicyInformation = useAppSelector((state) => state.getPlateWithCustomer.data);
-
-
-
-
-
-
-
 
   const [policyStatus, setPolicyStatus] = useState(false);
   const [savedPolicy, setSavedPolicy] = useState(false);
@@ -42,6 +39,13 @@ const CreateCarPolicy = () => {
   const [descriptionValid, setDescriptionValid] = useState<boolean>(false);
   const [plateValid, setPlateValid] = useState<boolean>(false);
 
+
+  useEffect(() => {
+    if (carPolicyInformation) {
+      console.log("Veri alındı, şimdi başka işlemler yapabilirsiniz.");
+      console.log(carPolicyInformation);
+    }
+  }, [carPolicyInformation]);
 
   const validateForm = () => {
     if (!policyName || !policyDescription || !policyType || !policyStartDate || !policyEndDate || !plate) {
@@ -84,6 +88,10 @@ const CreateCarPolicy = () => {
         });
   
         await waitForCarPolicyInformation;
+        while(!response)
+        {
+          waitForCarPolicyInformation
+        }
         console.log("Veri alındı, şimdi başka işlemler yapabilirsiniz.");
         console.log(carPolicyInformation);
       }
@@ -105,51 +113,42 @@ const CreateCarPolicy = () => {
     }
   };
 
-
+  useEffect(() => {
+    if (responseStatus === 200 || responseStatus === 201) {
+      toast.current?.show({ severity: 'success', summary: 'Başarılı', detail: 'Poliçe başarıyla oluşturuldu.', life: 2000 });
+      setShouldOpenModal(false);
+    } else if (responseStatus) {
+      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Poliçe oluşturulurken bir hata oluştu. Lütfen Tekrar Deneyiniz', life: 2000 });
+    }
+  }, [responseStatus]);
+  
   const handleConfirmPolicy = async (e: React.MouseEvent) => {
     e.preventDefault();
     console.log(carPolicyInformation);
-    
+  
     console.log("Policy Status:", policyStatus);
     console.log("Saved Policy:", savedPolicy);
-
-   if (policyStatus) {
-      await dispatch(createCarPolicy({
-        dto: {
-          policyName: policyName,
-          policyDescription: policyDescription,
-          policyType: policyType,
-          policyStatus: policyStatus,
-          policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
-          policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null,
-          customerId: carPolicyInformation.customer.id,
-          policyAmount: carPolicyInformation.amount
-        }
-      }));
-
-      setShouldOpenModal(false)
   
-    } else if (savedPolicy) {
+    if (policyStatus || savedPolicy) {
       await dispatch(createCarPolicy({
         dto: {
-          policyName: policyName,
-          policyDescription: policyDescription,
-          policyType: policyType,
-          policyStatus: savedPolicy,
+          policyName,
+          policyDescription,
+          policyType,
+          policyStatus: policyStatus || savedPolicy,
           policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
           policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null,
-          customerId: carPolicyInformation.customer.id,
-          policyAmount: carPolicyInformation.amount
+          tckn: carPolicyInformation.customer?.tckn,
+          policyAmount: carPolicyInformation?.amount,
+          licensePlateNumber: carPolicyInformation?.plate,
         }
       }));
-
-      setShouldOpenModal(false)
-
     } else {
       toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Lütfen bir işlem yapınız..', life: 2000 });
-
+      return;
     }
   };
+
   const validateName = (value: string) => {
     const regex = /^[A-Za-zğüşıöçĞÜŞİÖÇ\s]*$/;
     setNameValid(regex.test(value) && value.length <= 255);
@@ -234,13 +233,13 @@ const CreateCarPolicy = () => {
                     data-bs-parent="#accordionFlushExample"
                   >
                     <div className="accordion-body">
-                      <p><strong>Motor:</strong> {carPolicyInformation.car.engine ? carPolicyInformation.car.engine : '' }</p>
-                      <p><strong>Marka:</strong> {carPolicyInformation.car.make ? carPolicyInformation.car.make : ''}</p>
-                      <p><strong>Model:</strong> {carPolicyInformation.car.model ? carPolicyInformation.car.model : ''}</p>
-                      <p><strong>Yıl:</strong> {carPolicyInformation.car.year ? carPolicyInformation.car.year : ''}</p>
-                      <p><strong>Kilometre:</strong> {carPolicyInformation.car.kilometers ? carPolicyInformation.car.kilometers : ''} KM</p>
-                      <p><strong>Tahmini Değeri:</strong> {carPolicyInformation.car.price} TL</p>
-                      <p><strong>Plaka:</strong> {carPolicyInformation.plate}</p>
+                      <p><strong>Motor:</strong> {carPolicyInformation?.car?.engine || ''}</p>
+                      <p><strong>Marka:</strong> {carPolicyInformation?.car?.make || ''}</p>
+                      <p><strong>Model:</strong> {carPolicyInformation?.car?.model || ''}</p>
+                      <p><strong>Yıl:</strong> {carPolicyInformation?.car?.year || ''}</p>
+                      <p><strong>Kilometre:</strong> {carPolicyInformation?.car?.kilometers || ''} KM</p>
+                      <p><strong>Tahmini Değeri:</strong> {carPolicyInformation?.car?.price} TL</p>
+                      <p><strong>Plaka:</strong> {carPolicyInformation?.plate}</p>
                     </div>
                   </div>
                 </div>
@@ -264,12 +263,12 @@ const CreateCarPolicy = () => {
                     data-bs-parent="#accordionFlushExample"
                   >
                     <div className="accordion-body">
-                      <p><strong>Ad:</strong> {carPolicyInformation.customer.name}</p>
-                      <p><strong>Cinsiyet:</strong> {carPolicyInformation.customer.gender}</p>
-                      <p><strong>TCKN:</strong> {carPolicyInformation.customer.tckn}</p>
-                      <p><strong>Adres:</strong> {carPolicyInformation.customer.address}</p>
-                      <p><strong>Telefon:</strong> {carPolicyInformation.customer.phone}</p>
-                      <p><strong>Mail Adresi:</strong> {carPolicyInformation.customer.email}</p>
+                      <p><strong>Ad:</strong> {carPolicyInformation?.customer?.name}</p>
+                      <p><strong>Cinsiyet:</strong> {carPolicyInformation?.customer?.gender}</p>
+                      <p><strong>TCKN:</strong> {carPolicyInformation?.customer?.tckn}</p>
+                      <p><strong>Adres:</strong> {carPolicyInformation?.customer?.address}</p>
+                      <p><strong>Telefon:</strong> {carPolicyInformation?.customer?.phone}</p>
+                      <p><strong>Mail Adresi:</strong> {carPolicyInformation?.customer?.email}</p>
                     </div>
                   </div>
                 </div>

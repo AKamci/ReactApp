@@ -12,6 +12,7 @@ const UpdateCarPolicy = () => {
   const dispatch = useAppDispatch();
   const carPolicy = useAppSelector((state) => state.updateCarPolicy.data);
   const location = useLocation();
+
   const carPolicyData = location.state?.carPolicy.carPolicy;
 
   const [visible, setVisible] = useState<boolean>(false);
@@ -71,9 +72,10 @@ const UpdateCarPolicy = () => {
 
     return true;
   };
-
+  const policyId = carPolicyData?.id;
   const accept = async () => {
     const formData = {
+      policyId,
       policyName,
       policyDescription,
       policyType,
