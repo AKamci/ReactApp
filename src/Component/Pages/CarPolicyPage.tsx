@@ -5,6 +5,7 @@ import CarPolicyLeftNav from '../left-nav/CarPolicyLeftNav';
 import EntityList from '../Main/EntityList';
 import Footer from '../Shared/Footer';
 import React from 'react';
+import CarPolicyDefault from '../Main/CarPolicyMain/CarPolicyDefault';
 
 const CarPolicyPage = () => {
 	console.log('CarPolicyPage is rendered.');
@@ -20,6 +21,7 @@ const CarPolicyPage = () => {
                 <CarPolicyLeftNav/>
 			</Page.Aside>
 			<Page.Main>
+				<CarPolicyDefault/>
 			</Page.Main>
 			<Page.Footer>
 				<Footer />

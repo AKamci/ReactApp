@@ -7,10 +7,19 @@ import { Calendar } from 'primereact/calendar';
 import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/store';
 import { updateCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/UpdateCarPolicy-Slice';
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai';
+import { getCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/GetCarPolicy-Slice';
+import { getPlateWithCustomer } from '../../../infrastructure/Store/Slices/LicensePlateSlices/GetPlateWithCustomer-Slice';
 
 const UpdateCarPolicy = () => {
   const dispatch = useAppDispatch();
   const carPolicy = useAppSelector((state) => state.updateCarPolicy.data);
+  const carPolicyEntity = useAppSelector((state) => state.getCarPolicy.data);
+  const responseStatus = useAppSelector((state) => state.getCarPolicy.responseStatus);
+
+  const carPolicyInformation = useAppSelector((state) => state.getPlateWithCustomer.data);
+
+
+
   const location = useLocation();
 
   const carPolicyData = location.state?.carPolicy.carPolicy;
@@ -19,41 +28,80 @@ const UpdateCarPolicy = () => {
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
   const buttonEl = useRef(null);
-  const [policyName, setPolicyName] = useState('');
   const [policyDescription, setPolicyDescription] = useState('');
   const [policyType, setPolicyType] = useState('');
   const [policyStatus, setPolicyStatus] = useState(false);
   const [policyStartDate, setPolicyStartDate] = useState<Date | null>(null);
   const [policyEndDate, setPolicyEndDate] = useState<Date | null>(null);
   const [policyAmount, setPolicyAmount] = useState<number | null>(null);
+  const [policyId, setPolicyId] = useState<number | null>(null);
+  const[policyOfferDate, setPolicyOfferDate] = useState<Date | null>(null);
+  const [plate, setLicensePlateNumber] = useState('');
+
+
+
+  const [shouldOpenModal, setShouldOpenModal] = useState<boolean>(false);
+
+
   const navigate = useNavigate();
 
-  const [nameValid, setNameValid] = useState<boolean>(false);
   const [descriptionValid, setDescriptionValid] = useState<boolean>(false);
 
   useEffect(() => {
     if (carPolicyData) {
-      setPolicyName(carPolicyData.policyName || '');
+      console.log(carPolicyData)
+      setLicensePlateNumber(carPolicyData.licensePlateNumber || '');
+      setPolicyOfferDate(carPolicyData.policyOfferDate ? new Date(carPolicyData.policyOfferDate) : null);
+      setPolicyOfferDate(carPolicyData.policyStartDate ? new Date(carPolicyData.policyStartDate) : null);
       setPolicyDescription(carPolicyData.policyDescription || '');
       setPolicyType(carPolicyData.policyType || '');
       setPolicyStatus(carPolicyData.policyStatus || false);
       setPolicyStartDate(carPolicyData.policyStartDate ? new Date(carPolicyData.policyStartDate) : null);
       setPolicyEndDate(carPolicyData.policyEndDate ? new Date(carPolicyData.policyEndDate) : null);
       setPolicyAmount(carPolicyData.policyAmount || null);
+      setPolicyId(carPolicyData.policyId || null);
     }
-
-    validateName(carPolicyData.policyName || '');
-    validateDescription(carPolicyData.policyDescription || '');
-  }, [carPolicyData]);
+  }, [carPolicyData]); 
+  
+  useEffect(() => {
+    if (policyOfferDate) {
+      console.log("Trigger Open");
+      const currentDate = new Date();
+      const differenceInTime = currentDate.getTime() - policyOfferDate.getTime();
+      const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+  
+      if (differenceInDays > 30) {
+        console.log("Fark 30");
+        console.log(plate, policyType, policyStartDate, policyEndDate);
+  
+        dispatch(
+          getPlateWithCustomer({
+            plate,
+            policyType,
+            policyStartDate: policyStartDate ? policyStartDate.toISOString().split("T")[0] : null,
+            policyEndDate: policyEndDate ? policyEndDate.toISOString().split("T")[0] : null,
+          })
+        )
+          .unwrap()
+          .then((result) => {
+            if (result.amount !== policyAmount) {
+              console.log("Fiyat Güncellendi");
+              setPolicyAmount(result.amount);
+            }
+          });
+  
+        setShouldOpenModal(true);
+      }
+    }
+  }, [policyOfferDate, dispatch]);
 
   const validateForm = () => {
-    if (!policyName || !policyDescription || !policyType || !policyStartDate || !policyEndDate || policyAmount === null) {
+    if (!policyDescription || !policyType || !policyStartDate || !policyEndDate || policyAmount === null) {
       toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Tüm alanlar doldurulmalıdır.', life: 3000 });
       return false;
     }
 
     if (
-      policyName === carPolicyData.policyName &&
       policyDescription === carPolicyData.policyDescription &&
       policyType === carPolicyData.policyType &&
       policyStatus === carPolicyData.policyStatus &&
@@ -65,18 +113,17 @@ const UpdateCarPolicy = () => {
       return false;
     }
 
-    if (!nameValid || !descriptionValid) {
+    if (!descriptionValid) {
       toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Geçersiz kullanım.', life: 3000 });
       return false;
     }
 
     return true;
   };
-  const policyId = carPolicyData?.id;
+  
   const accept = async () => {
     const formData = {
       policyId,
-      policyName,
       policyDescription,
       policyType,
       policyStatus,
@@ -105,16 +152,6 @@ const UpdateCarPolicy = () => {
     }
   };
 
-
-
-
-
-  const validateName = (value: string) => {
-    const regex = /^[A-Za-zğüşıöçĞÜŞİÖÇ\s]*$/;
-    setNameValid(regex.test(value) && value.length <= 255);
-    setPolicyName(value);
-  };
-
   const validateDescription = (value: string) => {
     setDescriptionValid(value.length > 0 && value.length <= 500);
     setPolicyDescription(value);
@@ -133,21 +170,50 @@ const UpdateCarPolicy = () => {
   };
 
   return (
+    
+  <div>
+
+  {shouldOpenModal && (
+  <div
+      className="modal fade show"
+      style={{ display: 'block' }}
+      id="staticBackdrop"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabIndex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+     >
+
+    <div className="modal-dialog">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title" id="staticBackdropLabel">Fiyat Güncellemesi.</h5>
+          <button type="button" className="btn-close"  data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div className="modal-body">
+          Verilen fiyat teklifinin süresi dolduğu için yeni teklifi alınmıştır.
+          <strong></strong>
+        </div>
+        <div className="modal-footer">
+          <button type="button" className="btn btn-secondary" onClick={() => setShouldOpenModal(false)} data-bs-dismiss="modal">Anladım</button>        
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
     <form className="row g-3" onSubmit={(e) => e.preventDefault()}>
-      <div className="col-md-3">
-        <label htmlFor="inputPolicyName" className="form-label">Poliçe İsmi</label>
+      <div className="col-md-2">
+        <label htmlFor="inputPolicyId" className="form-label">Poliçe No</label>
         <input
           type="text"
           className="form-control"
           id="inputPolicyName"
-          value={policyName}
-          disabled={loading}
-          onChange={(e) => validateName(e.target.value)}
-          style={getInputStyle(nameValid)}
+          value={policyId}
+          disabled
         />
-        <span className="input-group-text">
-          {nameValid ? <AiOutlineCheckCircle color="green" size={12} /> : <AiOutlineCloseCircle color="red" size={12} />}
-        </span>
       </div>
 
       <div className="col-md-6">
@@ -165,15 +231,15 @@ const UpdateCarPolicy = () => {
         </span>
       </div>
 
-      <div className="col-md-3">
+
+      <div className="col-md-2">
         <label htmlFor="inputPolicyType" className="form-label">Poliçe Türü</label>
         <input
           type="text"
           className="form-control"
-          id="inputPolicyType"
+          id="inputPolicyName"
           value={policyType}
-          disabled={loading}
-          onChange={(e) => setPolicyType(e.target.value)}
+          disabled
         />
       </div>
 
@@ -215,7 +281,7 @@ const UpdateCarPolicy = () => {
           type="number"
           className="form-control"
           id="policyAmount"
-          value={policyAmount || ''}
+          value={policyAmount}
           disabled={loading}
           onChange={(e) => setPolicyAmount(Number(e.target.value))}
         />
@@ -230,6 +296,8 @@ const UpdateCarPolicy = () => {
           icon="pi pi-exclamation-triangle"
           accept={accept}
           reject={reject}
+          acceptLabel='Evet'
+          rejectLabel='Hayır'
         />
 
         <Button
@@ -241,9 +309,14 @@ const UpdateCarPolicy = () => {
           onClick={handleConfirm}
         />
       </div>
+
+
       <Toast ref={toast} />
     </form>
+
+    </div>
   );
+
 };
 
 export default UpdateCarPolicy;

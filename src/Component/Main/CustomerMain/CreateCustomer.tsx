@@ -116,10 +116,10 @@ const CreateCustomer = () => {
     }));
 
     if (responseStatus === 409) {
-      toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Girilen TCKN zaten mevcuttur.', life: 2000 });
+      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Girilen TCKN zaten mevcuttur.', life: 2000 });
     } else {
       setLoading(true);
-      await toast.current?.show({ severity: 'info', summary: 'Mesaj', detail: 'Müşteri Başarıyla Oluşturuldu.', life: 2000 });
+      await toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Müşteri Başarıyla Oluşturuldu.', life: 2000 });
 
       setTimeout(() => {
         setLoading(false);

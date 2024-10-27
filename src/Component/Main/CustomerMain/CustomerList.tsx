@@ -4,11 +4,14 @@ import { loadCustomers } from '../../../infrastructure/Store/Slices/CustomerSlic
 import { Toast } from 'primereact/toast';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { totalRecords } from '../../../infrastructure/Store/Slices/CustomerSlices/TotalRecordOfCustomer';
+import Spinner from '../../Shared/Spinner';
+import ApiState from '../../../infrastructure/Enums/ApiState';
 
 const CustomerList = () => {
     const dispatch = useAppDispatch();
     const customers = useAppSelector((state) => state.customers.data);
     const totalRecord = useAppSelector((state) => state.totalRecord.data);
+    const state = useAppSelector((state) => state.customers.state);
 
     const [first, setFirst] = useState<number>(0);
     const [rows, setRows] = useState<number>(3);
@@ -50,45 +53,51 @@ const CustomerList = () => {
     };
 
     return (
-        <div className="card">
+        <div className="">
             <Toast ref={toast} />
-
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Id</th>
-                        <th scope="col">İsim</th>
-                        <th scope="col">TCKN</th>
-                        <th scope="col">Adres</th>
-                        <th scope="col">Doğum Tarihi</th>
-                        <th scope="col">Cinsiyet</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Telefon</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {customers.map((customer) => (
-                        <tr key={customer.id}>
-                            <td>{customer.id}</td>
-                            <td>{customer.name}</td>
-                            <td>{customer.tckn}</td>
-                            <td>{customer.address}</td>
-                            <td>{customer.birthDay ? new Date(customer.birthDay).toLocaleDateString() : 'Tarih Yok'}</td>
-                            <td>{customer.gender}</td>
-                            <td>{customer.email}</td>
-                            <td>{customer.phone}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            <Paginator          
-                first={first}
-                rows={rows}
-                totalRecords={totalRecord} 
-                rowsPerPageOptions={[3, 10, 20, 50]}
-                onPageChange={onPageChange}
-            />
+    
+            {(state === ApiState.Pending || state === ApiState.Rejected) ? (
+                <Spinner color='primary' />
+            ) : (
+                <div>
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Id</th>
+                                <th scope="col">İsim</th>
+                                <th scope="col">TCKN</th>
+                                <th scope="col">Adres</th>
+                                <th scope="col">Doğum Tarihi</th>
+                                <th scope="col">Cinsiyet</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Telefon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {customers.map((customer) => (
+                                <tr key={customer.id}>
+                                    <td>{customer.id}</td>
+                                    <td>{customer.name}</td>
+                                    <td>{customer.tckn}</td>
+                                    <td>{customer.address}</td>
+                                    <td>{customer.birthDay ? new Date(customer.birthDay).toLocaleDateString() : 'Tarih Yok'}</td>
+                                    <td>{customer.gender}</td>
+                                    <td>{customer.email}</td>
+                                    <td>{customer.phone}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+    
+                    <Paginator
+                        first={first}
+                        rows={rows}
+                        totalRecords={totalRecord}
+                        rowsPerPageOptions={[3, 10, 20, 50]}
+                        onPageChange={onPageChange}
+                    />
+                </div>
+            )}
         </div>
     );
 };

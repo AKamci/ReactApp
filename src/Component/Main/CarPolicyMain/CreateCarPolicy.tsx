@@ -347,8 +347,8 @@ const CreateCarPolicy = () => {
 </div>
     <form className="row g-3" onSubmit={(e) => e.preventDefault()}>
       
-      <div className="col-3">
-        <label htmlFor="inputPolicyName" className="form-label">Poliçe İsmi</label>
+      <div className="col-md-2">
+        <label htmlFor="inputPolicyName" className="form-label">Poliçe No</label>
         <input
           type="text"
           className="form-control"
@@ -363,7 +363,7 @@ const CreateCarPolicy = () => {
         </span>
       </div>
 
-      <div className="col-9">
+      <div className="col-md-9">
         <label htmlFor="inputPolicyDescription" className="form-label">Poliçe Açıklaması</label>
         <textarea
           className="form-control"
@@ -421,7 +421,8 @@ const CreateCarPolicy = () => {
         </span>
       </div>
 
-      <div className="col-5">
+      <label htmlFor="floatingSelect" className="form-label mb-1">Poliçe Türü Seçiniz</label>
+      <div className="col-md-5">
         <div className="form-floating col-4">
           <select className="form-select" id="floatingSelect" disabled={loading} onChange={(e) => setPolicyType(e.target.value)}>
             <option value="">Seçiniz</option>

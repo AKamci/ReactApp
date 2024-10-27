@@ -10,46 +10,80 @@ import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPen } from '@fortawesome/free-solid-svg-icons';
 import { updateCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/UpdateCarPolicy-Slice';
+import Spinner from '../../Shared/Spinner';
+
 
 const GetCarPolicy = () => {
     const dispatch = useAppDispatch();
     const carPolicyEntity = useAppSelector((state) => state.getCarPolicy.data);
     const responseStatus = useAppSelector((state) => state.getCarPolicy.responseStatus);
+    const state = useAppSelector((state) => state.getCarPolicy.state);
     const UpdateResponseStatus = useAppSelector((state) => state.updateCarPolicy.responseStatus);
     const [loading, setLoading] = useState<boolean>(false);
     const [policyId, setPolicyId] = useState<number>(0); 
     const toastRef = useRef<Toast>(null);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        console.log("Car Policy Triggered");
-        console.log(carPolicyEntity);
-        console.log(carPolicyEntity.tckn);
 
-    }, [carPolicyEntity]);
 
     const load = async () => {
         console.log(policyId);
-        setLoading(true);
+        setLoading(false);
         
         const response = await dispatch(getCarPolicy({ policyId }));
-        
-        const { payload, meta } = response;
-        const condition = meta.requestStatus;
-        
-        if ((payload && payload.status === 404) || condition === 'rejected') {
-            toastRef.current?.show({ 
-                severity: 'error', 
-                summary: 'Bilgilendirme', 
-                detail: 'Poliçe Bulunamadı.', 
-                life: 2000 
-            });
-        } else {
-            console.log('Poliçe bulundu:', payload);
-        }
+    
         
         setLoading(false);
     };
+
+
+
+    useEffect(() => {
+        if (responseStatus !== 500) {
+            console.log("FULFILLED");
+            
+            if (responseStatus === 404) {
+                toastRef.current?.show({
+                    severity: 'info',
+                    summary: 'Bilgi',
+                    detail: 'Poliçe Bulunamadı.',
+                    life: 2000
+                });
+                setLoading(false);
+            } else if (responseStatus === 200) {
+                toastRef.current?.show({
+                    severity: 'success',
+                    summary: 'Bilgi',
+                    detail: 'Poliçe Bulundu.',
+                    life: 2000
+                });
+                setLoading(false);
+            } else if (responseStatus === 400) {
+                toastRef.current?.show({
+                    severity: 'warn',
+                    summary: 'Uyarı',
+                    detail: 'Numara Boş Bırakılamaz',
+                    life: 2000
+                });
+                setLoading(false);
+            }
+
+            setLoading(false);
+        } else {
+            console.log(responseStatus);
+            console.log(state);
+            console.log("REJECTED");
+            setLoading(false);
+            toastRef.current?.show({
+                severity: 'error',
+                summary: 'Hata',
+                detail: 'Sunucuya ulaşılamadı.',
+                life: 3000
+            });
+        }
+    }, [responseStatus]);
+    
+
 
     const removeCarPolicy = async (policyId: number) => {
         try {
@@ -57,8 +91,8 @@ const GetCarPolicy = () => {
             const resultAction = await dispatch(deleteCarPolicy({ policyId }));
             if (responseStatus === 200) {
                 toastRef.current?.show({ 
-                    severity: 'info', 
-                    summary: 'Success', 
+                    severity: 'success', 
+                    summary: 'Bilgi', 
                     detail: 'Poliçe Başarılı Bir Şekilde Silinmiştir.', 
                     life: 2000 
                 });
@@ -114,20 +148,26 @@ const GetCarPolicy = () => {
             <div className="card flex flex-wrap justify-content-center gap-3">
                 <button type="button" className="btn btn-primary" onClick={load}> ARAMA </button>
             </div>
+            {loading ? (
+            <div className="flex justify-content-center">
+                <Spinner color='primary' />
+            </div>
+        ) : (
 
             <table className="table">
                 <thead>
                     <tr>
-                        <th scope="col">Id</th>
-                        <th scope="col">Policy Name</th>
-                        <th scope="col">Policy Description</th>
-                        <th scope="col">Policy Type</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Start Date</th>
-                        <th scope="col">End Date</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col">License Plate</th>
-                        <th scope="col">TCKN</th>
+                    <th scope="col">Poliçe No</th>
+                                <th scope="col">Açıklama</th>
+                                <th scope="col">Tür</th>
+                                <th scope="col">Durum</th>
+                                <th scope="col">Başlangıç Tarihi</th>
+                                <th scope="col">Bitiş Tarihi</th>
+                                <th scope="col">Tutar</th>
+                                <th scope="col">Plaka</th>
+                                <th scope="col">Müşteri TCKN</th>
+                                <th scope="col">Teklif Tarihi</th>
+                        <th scope="col"></th>
                         <th scope="col"></th>
                         <th scope="col"></th>
                     </tr>
@@ -137,15 +177,15 @@ const GetCarPolicy = () => {
                          <tr key={`${carPolicy.policyId || 'default'}-${carPolicy.tckn || 'default'}`}>
                         
                             <td>{carPolicy.tckn === undefined ? '' : carPolicy.policyId}</td>
-                            <td>{carPolicy.policyName}</td>
                             <td>{carPolicy.policyDescription}</td>
                             <td>{carPolicy.policyType}</td>
-                            <td>{carPolicy.tckn === undefined ? '' :carPolicy.policyStatus ? 'Active' : 'Inactive'}</td>
+                            <td>{carPolicy.tckn === undefined ? '' :carPolicy.policyStatus ? 'Aktif' : 'Pasif'}</td>
                             <td>{carPolicy.policyStartDate ? new Date(carPolicy.policyStartDate).toLocaleDateString() : ''}</td>
                             <td>{carPolicy.policyEndDate ? new Date(carPolicy.policyEndDate).toLocaleDateString() : ''}</td>
                             <td>{carPolicy.policyAmount}</td>
                             <td>{carPolicy.licensePlateNumber}</td>
                             <td>{carPolicy.tckn}</td>
+                            <td>{carPolicy.policyOfferDate}</td>
                             <td>
                                 {carPolicyEntity.policyAmount > 0 && (
                                     <button className='btn btn-danger' onClick={() => removeCarPolicy(carPolicy.policyId)}><FontAwesomeIcon icon={faTrash} /></button>
@@ -160,6 +200,7 @@ const GetCarPolicy = () => {
                     ))}
                 </tbody>
             </table>
+            )}
         </div>
     );
 };

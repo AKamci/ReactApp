@@ -14,6 +14,7 @@ import { useDispatch } from 'react-redux';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Spinner from '../../Shared/Spinner';
 
 const GetCustomer = () => {
 
@@ -41,42 +42,62 @@ const GetCustomer = () => {
         console.log(customerEntity.tckn);
 
     }, [customerEntity]);
-
+    
     const load = async () => {
-
         if (tckn.length !== 11) {
-            toast.current?.show({ 
-                severity: 'warn', 
-                summary: 'Uyarı', 
-                detail: 'TCKN 11 haneli olmalıdır.', 
-                life: 3000 
+            toast.current?.show({
+                severity: 'warn',
+                summary: 'Uyarı',
+                detail: 'TCKN 11 haneli olmalıdır.',
+                life: 3000
             });
             return;
         }
-
-        setLoading(true);
-        setIsRemoved(true);
-        
-        const response = await dispatch(getCustomers({ tckn }));
-
-        const condition = response.meta.requestStatus;
-
-        console.log(customerEntity);
-        console.log(response.meta.requestStatus);
-
-        if(responseStatus == 404 || condition === 'rejected')
-            {
-                console.log("404 Aldım")
-                console.log(responseStatus)
-                toast.current?.show({ 
-                    severity: 'info', 
-                    summary: 'Başarılı', 
-                    detail: 'Müşteri Bulunamadı.', 
-                    life: 2000 
-                });
-            }
-
+    
+        setLoading(true); 
+            const response = await dispatch(getCustomers({ tckn }));
+    
     };
+
+
+    useEffect(() => {
+        if (responseStatus !== 500) {
+            console.log("FULLFIlleD")
+            if (responseStatus === 404) {
+                toast.current?.show({
+                    severity: 'info',
+                    summary: 'Bilgi',
+                    detail: 'Müşteri Bulunamadı.',
+                    life: 2000
+                });
+            } else if (responseStatus === 200) {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Bilgi',
+                    detail: 'Müşteri Bulundu.',
+                    life: 2000
+                });
+            
+            }
+            setLoading(false);
+        } else {
+            console.log(responseStatus)
+            console.log(state)
+            console.log("REJECTED")
+            setLoading(false);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Hata',
+                detail: 'Sunucuya ulaşılamadı.',
+                life: 3000
+            });
+        }
+    }, [responseStatus]);
+
+
+
+
+
 
 
     const removeCustomer = async (tckn: string) => {
@@ -99,7 +120,7 @@ const GetCustomer = () => {
 
             } 
             
-            else if(responseStatus == 404)
+            else if(responseStatus === 404)
             {
                 console.log("404 Aldım")
                 console.log(responseStatus)
@@ -143,22 +164,27 @@ const GetCustomer = () => {
 
    const dataToDisplay = Array.isArray(customerEntity) ? customerEntity : customerEntity ? [customerEntity] : [];
 
-    return (
-        <div key={refreshKey}>
-            <Toast ref={toast} />
-            <h3>MÜŞTERİ ARAMA İÇİN TCKN GİRİN</h3>
-            <div className="card flex justify-content-center">
-                <InputText 
-                    keyfilter="int" 
-                    placeholder="TCKN GİRİNİZ" 
-                    value={tckn} 
-                    onChange={(e) => setTckn(e.target.value)}
-                />
-            </div>
-            <div className="card flex flex-wrap justify-content-center gap-3">
-                <button type="button" className="btn btn-primary" onClick={load}>ARAMA</button>
-            </div>
+   return (
+    <div key={refreshKey}>
+        <Toast ref={toast} />
+        <h3>MÜŞTERİ ARAMA İÇİN TCKN GİRİN</h3>
+        <div className="card flex justify-content-center">
+            <InputText 
+                keyfilter="int" 
+                placeholder="TCKN GİRİNİZ" 
+                value={tckn} 
+                onChange={(e) => setTckn(e.target.value)}
+            />
+        </div>
+        <div className="card flex flex-wrap justify-content-center gap-3">
+            <button type="button" className="btn btn-primary" onClick={load}>ARAMA</button>
+        </div>
 
+        {loading ? (
+            <div className="flex justify-content-center">
+                <Spinner color='primary' />
+            </div>
+        ) : (
             <table className="table">
                 <thead>
                     <tr>
@@ -187,20 +213,25 @@ const GetCustomer = () => {
                             <td>{customer.phone}</td>
                             <td>
                                 {customerEntity.id > 0 && (
-                                    <button className='btn btn-danger' onClick={() => removeCustomer(customer.tckn)}><FontAwesomeIcon icon={faTrash} /></button>
+                                    <button className='btn btn-danger' onClick={() => removeCustomer(customer.tckn)}>
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </button>
                                 )}
                             </td>
                             <td>
                                 {customerEntity.id > 0 && (
-                                    <button className='btn btn-info' onClick={() => updateCustomer(customer)}><FontAwesomeIcon icon={faPen} /></button>
+                                    <button className='btn btn-info' onClick={() => updateCustomer(customer)}>
+                                        <FontAwesomeIcon icon={faPen} />
+                                    </button>
                                 )}
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-        </div>
-    );
+        )}
+    </div>
+);
 }
 
 export default GetCustomer;

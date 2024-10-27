@@ -100,7 +100,7 @@ const UpdateCustomer = () => {
     }));
   
     setLoading(true);
-    await toast.current?.show({ severity: 'info', summary: 'Mesaj', detail: 'Müşteri Başarıyla Güncellendi.', life: 2000 });
+    toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Müşteri Başarıyla Güncellendi.', life: 2000 });
 
     setTimeout(() => {
       setLoading(false);

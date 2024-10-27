@@ -5,6 +5,7 @@ import CustomerLeftNav from '../left-nav/CustomerLeftNav';
 import EntityList from '../Main/EntityList';
 import Footer from '../Shared/Footer';
 import React from 'react';
+import CustomerDefault from '../Main/CustomerMain/CustomerDefault';
 
 const CustomerPage = () => {
 	console.log('CustomerPage is rendered.');
@@ -20,7 +21,7 @@ const CustomerPage = () => {
                 <CustomerLeftNav/>
 			</Page.Aside>
 			<Page.Main>
-
+			<CustomerDefault/>
 			</Page.Main>
 			<Page.Footer>
 				<Footer />
