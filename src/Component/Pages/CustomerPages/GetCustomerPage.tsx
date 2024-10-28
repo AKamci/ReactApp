@@ -34,3 +34,4 @@ const GetCustomerPage = () => {
 };
 
 export default React.memo(GetCustomerPage);
+

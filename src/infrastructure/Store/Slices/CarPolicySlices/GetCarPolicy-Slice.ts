@@ -76,9 +76,15 @@ const getCarPolicySlice = createSlice({
         setActiveRequest: (state, action) => {
             state.activeRequest = action.payload;
         },
+        resetCarPolicyState: (state) => {
+            state.data = {} as CarPolicyDto; 
+            state.state = ApiState.Idle;
+            state.responseStatus = null;
+            state.errorMessage = null;
+        },
     },
 });
 
-export const { setActiveRequest } = getCarPolicySlice.actions;
+export const { setActiveRequest, resetCarPolicyState } = getCarPolicySlice.actions;
 
 export default getCarPolicySlice.reducer;

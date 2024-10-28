@@ -7,7 +7,7 @@ import { Calendar } from 'primereact/calendar';
 import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/store';
 import { updateCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/UpdateCarPolicy-Slice';
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai';
-import { createCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/CreateCarPolicy-Slice';
+import { createCarPolicy, resetResponseStatus } from '../../../infrastructure/Store/Slices/CarPolicySlices/CreateCarPolicy-Slice';
 import { getPlateWithCustomer } from '../../../infrastructure/Store/Slices/LicensePlateSlices/GetPlateWithCustomer-Slice';
 
 const CreateCarPolicy = () => {
@@ -48,12 +48,12 @@ const CreateCarPolicy = () => {
   }, [carPolicyInformation]);
 
   const validateForm = () => {
-    if (!policyName || !policyDescription || !policyType || !policyStartDate || !policyEndDate || !plate) {
+    if (!policyDescription || !policyType || !policyStartDate || !policyEndDate || !plate) {
       toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Tüm alanlar doldurulmalıdır.', life: 3000 });
       return false;
     }
 
-    if (!nameValid || !descriptionValid || !plateValid) {
+    if (!descriptionValid || !plateValid) {
       toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Geçersiz kullanım.', life: 3000 });
       return false;
     }
@@ -117,11 +117,12 @@ const CreateCarPolicy = () => {
     if (responseStatus === 200 || responseStatus === 201) {
       toast.current?.show({ severity: 'success', summary: 'Başarılı', detail: 'Poliçe başarıyla oluşturuldu.', life: 2000 });
       setShouldOpenModal(false);
+      dispatch(resetResponseStatus()); // responseStatus'u sıfırla
     } else if (responseStatus) {
       toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Poliçe oluşturulurken bir hata oluştu. Lütfen Tekrar Deneyiniz', life: 2000 });
+      dispatch(resetResponseStatus()); // responseStatus'u sıfırla
     }
   }, [responseStatus]);
-  
   const handleConfirmPolicy = async (e: React.MouseEvent) => {
     e.preventDefault();
     console.log(carPolicyInformation);
@@ -132,7 +133,6 @@ const CreateCarPolicy = () => {
     if (policyStatus || savedPolicy) {
       await dispatch(createCarPolicy({
         dto: {
-          policyName,
           policyDescription,
           policyType,
           policyStatus: policyStatus || savedPolicy,
@@ -141,6 +141,7 @@ const CreateCarPolicy = () => {
           tckn: carPolicyInformation.customer?.tckn,
           policyAmount: carPolicyInformation?.amount,
           licensePlateNumber: carPolicyInformation?.plate,
+          policyOfferDate: new Date().toISOString().split('T')[0],
         }
       }));
     } else {
@@ -292,7 +293,6 @@ const CreateCarPolicy = () => {
                     data-bs-parent="#accordionFlushExample"
                   >
                     <div className="accordion-body">
-                      <p><strong>Poliçe İsmi:</strong> {policyName}</p>
                       <p><strong>Poliçe Açıklaması:</strong> {policyDescription}</p>
                       <p><strong>Başlangıç Tarihi:</strong> {policyStartDate ? policyStartDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
                       <p><strong>Bitiş Tarihi:</strong> {policyEndDate ? policyEndDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
@@ -347,23 +347,8 @@ const CreateCarPolicy = () => {
 </div>
     <form className="row g-3" onSubmit={(e) => e.preventDefault()}>
       
-      <div className="col-md-2">
-        <label htmlFor="inputPolicyName" className="form-label">Poliçe No</label>
-        <input
-          type="text"
-          className="form-control"
-          id="inputPolicyName"
-          value={policyName}
-          disabled={loading}
-          onChange={(e) => validateName(e.target.value)}
-          style={getInputStyle(nameValid)}
-        />
-        <span className="input-group-text">
-          {nameValid ? <AiOutlineCheckCircle color="green" size={12} /> : <AiOutlineCloseCircle color="red" size={12} />}
-        </span>
-      </div>
 
-      <div className="col-md-9">
+      <div className="col-md-12">
         <label htmlFor="inputPolicyDescription" className="form-label">Poliçe Açıklaması</label>
         <textarea
           className="form-control"

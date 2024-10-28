@@ -15,7 +15,7 @@ const CarPolicyList = () => {
     const totalRecord = useAppSelector((state) => state.totalRecordCarPolicy.data);
     const [activeFilters, setActiveFilters] = useState<string[]>([]);
     const [first, setFirst] = useState<number>(0);
-    const [rows, setRows] = useState<number>(3);
+    const [rows, setRows] = useState<number>(10);
     const [selectedFilter, setSelectedFilter] = useState<string>(''); 
     const [policyNameFilter, setPolicyNameFilter] = useState<string>(''); 
     const [policyDateStart, setPolicyDateStart] = useState<string>(''); 
@@ -117,14 +117,7 @@ const CarPolicyList = () => {
         setPolicyStatus(null);
         setActiveFilters([]);
         
-
-        const newCounter = filterCounter + 1;
-        setFilterCounter(newCounter);
-
-        if (newCounter % 2 === 1) {
-            alert("Filtre Temizlendi --> Tüm Müşteriler için tekrar temizleye tıklayınız.");
-        }
-        await handleFilterChange();
+        await dispatch(getAllCarPolicy({ page: 0, size: rows }));
     };
 
     const handleFilterSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {

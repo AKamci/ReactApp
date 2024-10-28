@@ -72,9 +72,15 @@ const getCustomerSlice = createSlice({
         setActiveRequest: (state, action) => {
             state.activeRequest = action.payload;
         },
+        resetCustomerState: (state) => {
+            state.data = {} as CustomerDto; 
+            state.state = ApiState.Idle;
+            state.responseStatus = null;
+            state.errorMessage = null;
+        },
     },
 });
 
-export const { setActiveRequest } = getCustomerSlice.actions;
+export const { setActiveRequest, resetCustomerState } = getCustomerSlice.actions;
 
 export default getCustomerSlice.reducer;

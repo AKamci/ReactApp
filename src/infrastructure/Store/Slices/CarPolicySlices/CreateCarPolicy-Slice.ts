@@ -1,6 +1,6 @@
 import { CustomerDto } from "../../../dto/CustomerDto";
 import axios from 'axios';
-import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
 import Endpoints from '../../../Helpers/Api-Endpoints';
 import { CarPolicyDto } from "../../../dto/CarPolicyDto";
@@ -27,11 +27,10 @@ export const createCarPolicy = createAsyncThunk<CarPolicyDto, { dto: CarPolicyDt
         console.log("Create a Policy:", dto);
         
         try {
-            const response = await axios.post<CarPolicyDto>(Endpoints.CarPolicy.Create,dto);
+            const response = await axios.post<CarPolicyDto>(Endpoints.CarPolicy.Create, dto);
             console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {
-            
             const status = error.response ? error.response.status : 500; 
             const message = error.response?.data?.message || "An error occurred";
             console.error("Error status:", status, "Message:", message);
@@ -71,9 +70,12 @@ const createCarPolicySlice = createSlice({
         setActiveRequest: (state, action) => {
             state.activeRequest = action.payload;
         },
+        resetResponseStatus: (state) => {
+            state.responseStatus = null;  
+        },
     },
 });
 
-export const { setActiveRequest } = createCarPolicySlice.actions;
+export const { setActiveRequest, resetResponseStatus } = createCarPolicySlice.actions;
 
 export default createCarPolicySlice.reducer;
