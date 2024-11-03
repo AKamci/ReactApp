@@ -57,8 +57,8 @@ const GetCarPolicy = () => {
     
             if (error && error.status === 404) {
                 toastRef.current?.show({
-                    severity: 'info',
-                    summary: 'Bilgi',
+                    severity: 'error',
+                    summary: 'Uyarı',
                     detail: 'Poliçe Bulunamadı.',
                     life: 2000
                 });

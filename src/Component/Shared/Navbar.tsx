@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { faCar } from '@fortawesome/free-solid-svg-icons';
 import { faPerson } from '@fortawesome/free-solid-svg-icons';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faCalculator } from '@fortawesome/free-solid-svg-icons';
 
 const Navbar = () => {
   console.log('Navbar is rendered.');
@@ -51,6 +52,15 @@ const Navbar = () => {
                   isActive ? 'nav-link active-link' : 'nav-link'
                 }>
                 <FontAwesomeIcon icon={faCar} /> Araba Poliçe İşlemleri
+              </NavLink>
+            </li>
+            <li className='nav-item'>
+              <NavLink
+                to='/setWeight'
+                className={({ isActive }) => 
+                  isActive ? 'nav-link active-link' : 'nav-link'
+                }>
+                <FontAwesomeIcon icon={faCalculator} /> Parametre Ayarlama
               </NavLink>
             </li>
           </ul>

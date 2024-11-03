@@ -97,7 +97,7 @@ const CreateCarPolicy = () => {
       }
     } catch (error) {
       if (error.status === 404) {
-        toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Plaka bulunamadı.', life: 3000 });
+        toast.current?.show({ severity: 'error', summary: 'Uyarı', detail: 'Plaka bulunamadı.', life: 3000 });
         setShouldOpenModal(false); 
       } else {
         toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Bir hata oluştu.', life: 3000 });
@@ -145,7 +145,7 @@ const CreateCarPolicy = () => {
         }
       }));
     } else {
-      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Lütfen bir işlem yapınız..', life: 2000 });
+      toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Lütfen bir işlem yapınız..', life: 2000 });
       return;
     }
   };
@@ -177,7 +177,7 @@ const CreateCarPolicy = () => {
 
   const reject = () => {
     setShouldOpenModal(false)
-    toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Poliçe oluşturmak için onay vermelisiniz.', life: 2000 });
+    toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Poliçe oluşturmak için onay vermelisiniz.', life: 2000 });
   };
 
   const today = new Date();

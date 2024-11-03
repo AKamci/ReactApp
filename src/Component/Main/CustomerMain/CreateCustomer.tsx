@@ -82,11 +82,11 @@ const CreateCustomer = () => {
 
   const validateForm = () => {
     if (!tcknValid) {
-      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'TCKN 11 haneli olmalıdır.', life: 3000 });
+      toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'TCKN 11 haneli olmalıdır.', life: 3000 });
       return false;
     }
     if (!nameValid || !phoneValid || !emailValid || !address || !gender || !birthDate) {
-      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Tüm alanlar doldurulmalıdır ve geçerli olmalıdır.', life: 3000 });
+      toast.current?.show({ severity: 'error', summary: 'Uyarı', detail: 'Tüm alanlar doldurulmalıdır ve geçerli olmalıdır.', life: 3000 });
       return false;
     }
     return true;
@@ -116,7 +116,7 @@ const CreateCustomer = () => {
     }));
 
     if (responseStatus === 409) {
-      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Girilen TCKN zaten mevcuttur.', life: 2000 });
+      toast.current?.show({ severity: 'error', summary: 'Uyarı', detail: 'Girilen TCKN zaten mevcuttur.', life: 2000 });
     } else {
       setLoading(true);
       await toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Müşteri Başarıyla Oluşturuldu.', life: 2000 });
@@ -129,7 +129,7 @@ const CreateCustomer = () => {
   };
 
   const reject = () => {
-    toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Müşteri oluşturmak için onay vermelisiniz.', life: 2000 });
+    toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Müşteri oluşturmak için onay vermelisiniz.', life: 2000 });
   };
 
   const handleConfirm = (e: React.MouseEvent) => {

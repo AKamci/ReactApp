@@ -12,6 +12,7 @@ import CarPolicyListPage from '../../Component/Pages/CarPolicyPages/CarPolicyLis
 import GetCarPolicyPage from '../../Component/Pages/CarPolicyPages/GetCarPolicyPage';
 import CreateCarPolicyPage from '../../Component/Pages/CarPolicyPages/CreateCarPolicyPage';
 import UpdateCarPolicyPage from '../../Component/Pages/CarPolicyPages/UpdateCarPolicyPage';
+import WeightsPage from '../../Component/Pages/WeightsPage';
 
 
 const Routers = () => {
@@ -30,6 +31,8 @@ const Routers = () => {
 				<Route path='/carPolicy/getCarPolicy' element={<GetCarPolicyPage />} />
 				<Route path='/carPolicy/list' element={<CarPolicyListPage />} />
 				<Route path='/carPolicy/updateCarPolicy' element={<UpdateCarPolicyPage />} />
+				<Route path='/setWeight' element={<WeightsPage />} />
+
 				
 
 				

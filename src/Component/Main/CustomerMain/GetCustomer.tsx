@@ -59,8 +59,8 @@ const GetCustomer = () => {
 
             if (error && error.status === 404) {
                 toastRef.current?.show({
-                    severity: 'info',
-                    summary: 'Bilgi',
+                    severity: 'warn',
+                    summary: 'Uyarı',
                     detail: 'Müşteri Bulunamadı.',
                     life: 2000
                 });
@@ -83,8 +83,8 @@ const GetCustomer = () => {
 
             if (resultAction.meta.requestStatus === 'fulfilled') {
                 toastRef.current?.show({
-                    severity: 'info',
-                    summary: 'Başarılı',
+                    severity: 'success',
+                    summary: 'Bilgi',
                     detail: 'Müşteri Başarıyla Silindi.',
                     life: 2000
                 });
@@ -93,8 +93,8 @@ const GetCustomer = () => {
 
                 if (error && error.status === 404) {
                     toastRef.current?.show({
-                        severity: 'info',
-                        summary: 'Bilgi',
+                        severity: 'warn',
+                        summary: 'Uyarı',
                         detail: 'Müşteri Bulunamadı.',
                         life: 2000
                     });

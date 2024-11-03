@@ -50,11 +50,11 @@ const UpdateCustomer = () => {
 
   const validateForm = () => {
     if (tckn.length !== 11) { 
-      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'TCKN 11 haneli olmalıdır.', life: 3000 });
+      toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'TCKN 11 haneli olmalıdır.', life: 3000 });
       return false;
     }
     if (!name || !phone || !email || !address || !gender || !birthDate) {
-      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Tüm alanlar doldurulmalıdır.', life: 3000 });
+      toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Tüm alanlar doldurulmalıdır.', life: 3000 });
       return false;
     }
 
@@ -138,7 +138,7 @@ const UpdateCustomer = () => {
     setPhone(value);
   };
   const reject = () => {
-    toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Müşteri oluşturmak için onay vermelisiniz.', life: 2000 });
+    toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Müşteri oluşturmak için onay vermelisiniz.', life: 2000 });
   };
 
   return (

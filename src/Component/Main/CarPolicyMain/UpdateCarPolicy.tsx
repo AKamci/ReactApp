@@ -130,6 +130,7 @@ const UpdateCarPolicy = () => {
       policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
       policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null,
       policyAmount,
+      policyOfferDate: new Date().toISOString().split('T')[0],
     };
 
     console.log(JSON.stringify(formData, null, 2));
@@ -137,7 +138,7 @@ const UpdateCarPolicy = () => {
     dispatch(updateCarPolicy({ dto: formData }));
 
     setLoading(true);
-    await toast.current?.show({ severity: 'info', summary: 'Mesaj', detail: 'Poliçe Başarıyla Güncellendi.', life: 2000 });
+    await toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Poliçe Başarıyla Güncellendi.', life: 2000 });
 
     setTimeout(() => {
       setLoading(false);
@@ -166,7 +167,7 @@ const UpdateCarPolicy = () => {
 
 
   const reject = () => {
-    toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Poliçe oluşturmak için onay vermelisiniz.', life: 2000 });
+    toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Poliçe oluşturmak için onay vermelisiniz.', life: 2000 });
   };
 
   return (
@@ -203,7 +204,7 @@ const UpdateCarPolicy = () => {
   </div>
 )}
 
-
+<Toast ref={toast} />
     <form className="row g-3" onSubmit={(e) => e.preventDefault()}>
       <div className="col-md-2">
         <label htmlFor="inputPolicyId" className="form-label">Poliçe No</label>
@@ -282,7 +283,7 @@ const UpdateCarPolicy = () => {
           className="form-control"
           id="policyAmount"
           value={policyAmount}
-          disabled={loading}
+          disabled
           onChange={(e) => setPolicyAmount(Number(e.target.value))}
         />
       </div>
@@ -304,6 +305,7 @@ const UpdateCarPolicy = () => {
           ref={buttonEl}
           label={loading ? 'Yükleniyor...' : 'Poliçeyi Güncelle'}
           type="submit"
+          className='p-button-success'
           icon="pi pi-check"
           disabled={loading}
           onClick={handleConfirm}
@@ -311,7 +313,7 @@ const UpdateCarPolicy = () => {
       </div>
 
 
-      <Toast ref={toast} />
+      
     </form>
 
     </div>
