@@ -1,3 +1,4 @@
+import CarPolicyStateEnum from "../Enums/CarPolicyStateEnum";
 import { CustomerDto } from "./CustomerDto";
 import { LicensePlateDto } from "./LicensePlateDto";
 
@@ -5,7 +6,7 @@ export interface CarPolicyDto {
     policyId: number;
     policyName: string;
     policyDescription: string;
-    policyType: string;
+    policyType: number;
     policyStatus: Boolean;
     policyStartDate: Date;
     policyOfferDate: Date;
@@ -13,4 +14,5 @@ export interface CarPolicyDto {
     policyAmount: number;
     licensePlateNumber: string;
     tckn: string;
+    state: CarPolicyStateEnum;
 }

@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPen } from '@fortawesome/free-solid-svg-icons';
 import  Spinner  from '../../Shared/Spinner';
+import CarPolicyStateEnum from '../../../infrastructure/Enums/CarPolicyStateEnum';
 
 const GetCarPolicy = () => {
     const dispatch = useAppDispatch();
@@ -45,6 +46,8 @@ const GetCarPolicy = () => {
             
 
             console.log("FULFILLED");
+            console.log(carPolicyEntity);
+
             toastRef.current?.show({
                 severity: 'success',
                 summary: 'Bilgi',
@@ -157,7 +160,9 @@ const GetCarPolicy = () => {
                             <tr key={`${carPolicy.policyId || 'default'}-${carPolicy.tckn || 'default'}`}>
                                 <td>{carPolicy.tckn === undefined ? '' : carPolicy.policyId}</td>
                                 <td>{carPolicy.policyDescription}</td>
-                                <td>{carPolicy.policyType}</td>
+                                <td>
+                                {carPolicy.policyType === 101 ? 'Kasko' : carPolicy.policyType === 102 ? 'Trafik' : ''}
+                                </td>
                                 <td>{carPolicy.tckn === undefined ? '' :carPolicy.policyStatus ? 'Aktif' : 'Pasif'}</td>
                                 <td>{carPolicy.policyStartDate ? new Date(carPolicy.policyStartDate).toLocaleDateString() : ''}</td>
                                 <td>{carPolicy.policyEndDate ? new Date(carPolicy.policyEndDate).toLocaleDateString() : ''}</td>
@@ -166,13 +171,17 @@ const GetCarPolicy = () => {
                                 <td>{carPolicy.tckn}</td>
                                 <td>{carPolicy.policyOfferDate}</td>
                                 <td>
-                                    {carPolicyEntity.policyAmount > 0 && (
-                                        <button className='btn btn-danger' onClick={() => removeCarPolicy(carPolicy.policyId)}><FontAwesomeIcon icon={faTrash} /></button>
+                                    {carPolicyEntity.policyAmount > 0 && carPolicy.state !== CarPolicyStateEnum.ACCEPTED && (
+                                        <button className="btn btn-danger" onClick={() => removeCarPolicy(carPolicy.policyId)}>
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </button>
                                     )}
                                 </td>
                                 <td>
-                                    {carPolicyEntity.policyAmount > 0 && (
-                                        <button className='btn btn-info' onClick={() => updateCarPolicyFunc(carPolicy)}><FontAwesomeIcon icon={faPen} /></button>
+                                    {carPolicyEntity.policyAmount > 0 && carPolicy.state !== CarPolicyStateEnum.ACCEPTED && (
+                                        <button className="btn btn-info" onClick={() => updateCarPolicyFunc(carPolicy)}>
+                                            <FontAwesomeIcon icon={faPen} />
+                                        </button>
                                     )}
                                 </td>
                             </tr>

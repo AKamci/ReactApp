@@ -23,6 +23,17 @@ import TotalRecordOfCarPolicy from './Slices/CarPolicySlices/TotalRecordOfCarPol
 import GetPlateWithCustomer  from './Slices/LicensePlateSlices/GetPlateWithCustomer-Slice';
 
 
+import GetWeight from './Slices/WeightSlices/GetWeight-Slice';
+import UpdateWeight from './Slices/WeightSlices/UpdateWeight-Slice';
+import DeleteWeight from './Slices/WeightSlices/DeleteWeight-Slice';
+import CreateWeight from './Slices/WeightSlices/CreateWeight-Slice';
+import GetListWeight from './Slices/WeightSlices/GetListWeight-Slice';
+import UpdateListWeight from './Slices/WeightSlices/UpdateListWeight-Slice';
+
+
+
+
+
 const store = configureStore({
 	reducer: {
 		//CUSTOMER STORE
@@ -49,7 +60,20 @@ const store = configureStore({
 
 		//	LICENSE PLATE STORE
 
-		getPlateWithCustomer: GetPlateWithCustomer
+		getPlateWithCustomer: GetPlateWithCustomer,
+
+
+
+		// WEIGHT STORE
+
+		getWeight : GetWeight,
+		updateWeight: UpdateWeight,
+		deleteWeight: DeleteWeight,
+		createWeight: CreateWeight,
+		getListWeight: GetListWeight,
+		updateListWeight: UpdateListWeight
+
+
 
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),

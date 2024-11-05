@@ -30,7 +30,7 @@ const CreateCarPolicy = () => {
   const [policyName, setPolicyName] = useState('');
   const [policyDescription, setPolicyDescription] = useState('');
   const [plate, setPlate] = useState('');
-  const [policyType, setPolicyType] = useState('');
+  const [policyType, setPolicyType] = useState<number | null>(null);
   const [policyStartDate, setPolicyStartDate] = useState<Date | null>(null);
   const [policyEndDate, setPolicyEndDate] = useState<Date | null>(null);
   const [policyAmount, setPolicyAmount] = useState<number | null>(null);
@@ -73,8 +73,6 @@ const CreateCarPolicy = () => {
       const response = await dispatch(getPlateWithCustomer({
         plate,
         policyType,
-        policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
-        policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null
       })).unwrap()
   
       if (response && response.car) {
@@ -114,13 +112,22 @@ const CreateCarPolicy = () => {
   };
 
   useEffect(() => {
+    if (policyStartDate) {
+      const endDate = new Date(policyStartDate);
+      endDate.setFullYear(endDate.getFullYear() + 1);
+      setPolicyEndDate(endDate);
+    }
+  }, [policyStartDate]);
+
+
+  useEffect(() => {
     if (responseStatus === 200 || responseStatus === 201) {
       toast.current?.show({ severity: 'success', summary: 'Başarılı', detail: 'Poliçe başarıyla oluşturuldu.', life: 2000 });
       setShouldOpenModal(false);
-      dispatch(resetResponseStatus()); // responseStatus'u sıfırla
+      dispatch(resetResponseStatus()); 
     } else if (responseStatus) {
       toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Poliçe oluşturulurken bir hata oluştu. Lütfen Tekrar Deneyiniz', life: 2000 });
-      dispatch(resetResponseStatus()); // responseStatus'u sıfırla
+      dispatch(resetResponseStatus()); 
     }
   }, [responseStatus]);
   const handleConfirmPolicy = async (e: React.MouseEvent) => {
@@ -369,6 +376,7 @@ const CreateCarPolicy = () => {
         <Calendar
         minDate={startDate}
         maxDate={policyEndDate}
+        hideOnDateTimeSelect
         value={policyStartDate}
           onChange={(e) => setPolicyStartDate(e.value as Date)}
           showIcon
@@ -383,9 +391,11 @@ const CreateCarPolicy = () => {
           minDate={endDate}
           onChange={(e) => setPolicyEndDate(e.value as Date)}
           showIcon
-          disabled={loading}
+          disabled
         />
       </div>
+
+
 
       <div className="col-md-2">
         <label htmlFor="plate" className="form-label">Plaka</label>
@@ -409,14 +419,20 @@ const CreateCarPolicy = () => {
       <label htmlFor="floatingSelect" className="form-label mb-1">Poliçe Türü Seçiniz</label>
       <div className="col-md-5">
         <div className="form-floating col-4">
-          <select className="form-select" id="floatingSelect" disabled={loading} onChange={(e) => setPolicyType(e.target.value)}>
+          <select 
+            className="form-select" 
+            id="floatingSelect" 
+            disabled={loading} 
+            onChange={(e) => setPolicyType(parseInt(e.target.value) || "")} 
+          >
             <option value="">Seçiniz</option>
-            <option value="Kasko">Kasko</option>
-            <option value="Trafik">Trafik</option>
+            <option value="101">Kasko</option>
+            <option value="102">Trafik</option>
           </select>
           <label htmlFor="floatingSelect">Poliçe Türü Seçiniz</label>
         </div>
-        </div>
+      </div>
+
 
 
 <div className='col-12'>

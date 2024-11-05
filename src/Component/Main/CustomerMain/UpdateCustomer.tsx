@@ -23,7 +23,7 @@ const UpdateCustomer = () => {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
-  const [gender, setGender] = useState('');
+  const [gender, setGender] = useState<number | null>(null);
   const [tckn, setTckn] = useState('');
   const navigate = useNavigate();
 
@@ -38,7 +38,7 @@ const UpdateCustomer = () => {
       setPhone(customerData.phone || '');
       setEmail(customerData.email || '');
       setAddress(customerData.address || '');
-      setGender(customerData.gender || '');
+      setGender(customerData.gender || null);
       setTckn(customerData.tckn || '');
       setBirthDate(customerData.birthDay ? new Date(customerData.birthDay) : null);
     }
@@ -229,13 +229,13 @@ const UpdateCustomer = () => {
             className="form-select" 
             id="floatingSelect" 
             value={gender} 
-            onChange={(e) => setGender(e.target.value)}
+            onChange={(e) => setGender(parseInt(e.target.value) || "")}
             disabled={loading}
           >
             <option value="">Seçiniz</option>
-            <option value="Kadın">Kadın</option>
-            <option value="Erkek">Erkek</option>
-            <option value="Belirtmek İstemiyorum">Belirtmek İstemiyorum</option>
+            <option value="0">Kadın</option>
+            <option value="1">Erkek</option>
+            <option value="2">Belirtmek İstemiyorum</option>
           </select>
           <label htmlFor="floatingSelect">Cinsiyet</label>
         </div>

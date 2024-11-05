@@ -25,7 +25,7 @@ const CreateCustomer = () => {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
-  const [gender, setGender] = useState('');
+  const [gender, setGender] = useState<number | null>(null);
   const [tckn, setTckn] = useState('');
   const [tcknValid, setTcknValid] = useState<boolean>(false);
   
@@ -233,15 +233,17 @@ const CreateCustomer = () => {
         />
       </div>
       <div className="col-12">
+        
         <div className="form-floating col-2 small">
-          <select className="form-select" id="floatingSelect" value={gender} disabled={loading} onChange={(e) => setGender(e.target.value)}>
+          <select className="form-select" id="floatingSelect" value={gender} disabled={loading} onChange={(e) => setGender(parseInt(e.target.value) || "")}>
             <option value="">Seçiniz</option>
-            <option value="Kadın">Kadın</option>
-            <option value="Erkek">Erkek</option>
-            <option value="Belirtmek İstemiyorum">Belirtmek İstemiyorum</option>
+            <option value="0">Kadın</option>
+            <option value="1">Erkek</option>
+            <option value="2">Belirtmek İstemiyorum</option>
           </select>
           <label htmlFor="floatingSelect">Cinsiyet Seç</label>
         </div>
+
         <div className="col-12">
           <br />
         </div>

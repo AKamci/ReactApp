@@ -22,7 +22,7 @@ const CarPolicyList = () => {
     const [policyDateEnd, setPolicyDateEnd] = useState<string>(''); 
 
     const [filterCounter, setFilterCounter] = useState(0);
-    const [policyTypeFilter, setPolicyTypeFilter] = useState<string>(''); 
+    const [policyTypeFilter, setPolicyTypeFilter] = useState<number | null>(null); 
     const [customerTCKN, setCustomerTCKN] = useState<string>('');
     const [carPlate, setCarPlate] = useState<string>(''); 
     const [policyStatus, setPolicyStatus] = useState<boolean | null>(null);
@@ -37,7 +37,7 @@ const CarPolicyList = () => {
             size: rows,
             policyStatus: policyStatus,
             tckn: customerTCKN ? customerTCKN : null,
-            policyType: policyTypeFilter ? policyTypeFilter : null, 
+            policyType: policyTypeFilter !== null ? policyTypeFilter : null, 
             licensePlateNumber: carPlate ? carPlate : null, 
             policyStartDate: policyDateStart ? policyDateStart.toISOString().split('T')[0] : null, 
             policyEndDate: policyDateEnd ? policyDateEnd.toISOString().split('T')[0] : null
@@ -71,7 +71,7 @@ const CarPolicyList = () => {
     
         const filters = [];
         if (policyStatus !== null) filters.push(`Durum: ${policyStatus ? 'Aktif' : 'Pasif'}`);
-        if (policyTypeFilter) filters.push(`Tür: ${policyTypeFilter}`);
+        if (policyTypeFilter !== null) filters.push(`Tür: ${policyTypeFilter}`);
         if (customerTCKN) filters.push(`TCKN: ${customerTCKN}`);
         if (carPlate) filters.push(`Plaka: ${carPlate}`);
         if (policyDateStart && policyDateEnd) filters.push(`Tarih Aralığı: ${policyDateStart} - ${policyDateEnd}`);
@@ -109,7 +109,7 @@ const CarPolicyList = () => {
 
     const clearFilters = async () => {
         setPolicyNameFilter('');
-        setPolicyTypeFilter('');
+        setPolicyTypeFilter(null);
         setPolicyDateStart('');
         setPolicyDateEnd('');
         setCarPlate('');
@@ -162,17 +162,18 @@ const CarPolicyList = () => {
                         </select>
                     )}
     
-                    {selectedFilter === 'policyType' && (
+                        {selectedFilter === 'policyType' && (
                         <select
-                            value={policyTypeFilter}
-                            onChange={(e) => setPolicyTypeFilter(e.target.value)}
+                            value={policyTypeFilter !== null ? policyTypeFilter.toString() : ''}
+                            onChange={(e) => setPolicyTypeFilter(e.target.value ? Number(e.target.value) : null)}
                             className="form-control mb-3"
                         >
                             <option value=''>Poliçe Türünü Seçin</option>
-                            <option value="Kasko">Kasko</option>
-                            <option value="Trafik">Trafik</option>
+                            <option value="101">Kasko</option>
+                            <option value="102">Trafik</option>
                         </select>
                     )}
+
     
                     {selectedFilter === 'customerTckn' && (
                         <input
@@ -238,7 +239,9 @@ const CarPolicyList = () => {
                                     <tr key={carPolicy.policyId}>
                                         <td>{carPolicy.policyId}</td>
                                         <td>{carPolicy.policyDescription}</td>
-                                        <td>{carPolicy.policyType}</td>
+                                        <td>
+                                        {carPolicy.policyType === 101 ? 'Kasko' : carPolicy.policyType === 102 ? 'Trafik' : ''}
+                                        </td>
                                         <td>{carPolicy.policyStatus ? 'Aktif' : 'Pasif'}</td>
                                         <td>{carPolicy.policyAmount}</td>
                                         <td>{carPolicy.policyStartDate ? new Date(carPolicy.policyStartDate).toLocaleDateString() : 'Tarih Yok'}</td>

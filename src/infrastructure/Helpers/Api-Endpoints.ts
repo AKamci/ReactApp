@@ -23,6 +23,16 @@ export default {
 	},
 	LicensePlate:{
 		GetWithCustomer: `${baseUrl_v1}/licensePlate/WCustomer`,
-	}
+	},
+
+	Weights:{
+
+		GetWeight: `${baseUrl_v1}/weight`,
+		DeleteWeight: `${baseUrl_v1}/weight`,
+		CreateWeight: `${baseUrl_v1}/weight`,
+		UpdateWeight: `${baseUrl_v1}/weight`,
+		GetListWeight:`${baseUrl_v1}/weight/list`,
+		UpdateListWeight:`${baseUrl_v1}/weight/saveAll`
+	},
 
 };

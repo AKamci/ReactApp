@@ -32,6 +32,8 @@ const CustomerList = () => {
                 page: first / rows, 
                 size: rows 
             }));
+            console.log(customers)
+
         }
     }, [first, rows, dispatch, nameFilter, tcknFilter, birthDateStart, birthDateEnd]);
 
@@ -81,7 +83,9 @@ const CustomerList = () => {
                                     <td>{customer.tckn}</td>
                                     <td>{customer.address}</td>
                                     <td>{customer.birthDay ? new Date(customer.birthDay).toLocaleDateString() : 'Tarih Yok'}</td>
-                                    <td>{customer.gender}</td>
+                                    <td>
+                                        {customer.gender === 1 ? 'Erkek' : customer.gender === 0 ? 'Kadın' : ''}
+                                    </td>
                                     <td>{customer.email}</td>
                                     <td>{customer.phone}</td>
                                 </tr>

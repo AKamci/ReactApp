@@ -9,6 +9,6 @@ export interface CustomerDto {
     email: string;
     password: string;
     birthDay: Date;
-    gender: string;
+    gender: number;
     carPolicies: CarPolicyDto[];
 }
