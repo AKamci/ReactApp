@@ -22,7 +22,7 @@ const initialState = {
 } as CarPolicyState;
 
 export const deleteCarPolicy = createAsyncThunk<CarPolicyDto, { policyId: number }, { state: CarPolicyState }>(
-    'carPolicy',
+    'deleteCarPolicy',
     async ({ policyId }, { rejectWithValue }) => {
         console.log("getCustomers with tckn:", policyId);
         

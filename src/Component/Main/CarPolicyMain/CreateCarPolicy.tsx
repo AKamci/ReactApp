@@ -102,6 +102,22 @@ const CreateCarPolicy = () => {
         setShouldOpenModal(false);
       }
     }
+
+    //Alınan  veri ile poliçenin yaratılması.
+
+
+    await dispatch(createCarPolicy({
+      dto: {
+        policyDescription,
+        policyType,
+        policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
+        policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null,
+        tckn: carPolicyInformation.customer?.tckn,
+        policyAmount: carPolicyInformation?.amount,
+        licensePlateNumber: carPolicyInformation?.plate,
+        policyOfferDate: new Date().toISOString().split('T')[0],
+      }
+    }));
   };
 
   const handleConfirm = (e: React.MouseEvent) => {
@@ -130,32 +146,9 @@ const CreateCarPolicy = () => {
       dispatch(resetResponseStatus()); 
     }
   }, [responseStatus]);
-  const handleConfirmPolicy = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    console.log(carPolicyInformation);
-  
-    console.log("Policy Status:", policyStatus);
-    console.log("Saved Policy:", savedPolicy);
-  
-    if (policyStatus || savedPolicy) {
-      await dispatch(createCarPolicy({
-        dto: {
-          policyDescription,
-          policyType,
-          policyStatus: policyStatus || savedPolicy,
-          policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
-          policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null,
-          tckn: carPolicyInformation.customer?.tckn,
-          policyAmount: carPolicyInformation?.amount,
-          licensePlateNumber: carPolicyInformation?.plate,
-          policyOfferDate: new Date().toISOString().split('T')[0],
-        }
-      }));
-    } else {
-      toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Lütfen bir işlem yapınız..', life: 2000 });
-      return;
-    }
-  };
+
+
+
 
   const validateName = (value: string) => {
     const regex = /^[A-Za-zğüşıöçĞÜŞİÖÇ\s]*$/;
@@ -210,7 +203,12 @@ const CreateCarPolicy = () => {
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title" id="staticBackdropLabel">POLİÇE ANTLAŞMASI</h5>
+            <h5 className="modal-title" id="staticBackdropLabel"></h5>
+            <p className="text-primary">
+            <strong>POLİÇE TEKLİFİNİZ ALINDI </strong>   
+            <br />   
+            <strong>POLİÇE DETAYLARI AŞAĞIDADIR</strong>      
+            </p>
             <button
               type="button"
               className="btn-close"
@@ -272,7 +270,7 @@ const CreateCarPolicy = () => {
                   >
                     <div className="accordion-body">
                       <p><strong>Ad:</strong> {carPolicyInformation?.customer?.name}</p>
-                      <p><strong>Cinsiyet:</strong> {carPolicyInformation?.customer?.gender}</p>
+                      <p><strong>Cinsiyet:</strong> {carPolicyInformation?.customer?.gender === 0 ? "Kadın" : "Erkek"}</p>
                       <p><strong>TCKN:</strong> {carPolicyInformation?.customer?.tckn}</p>
                       <p><strong>Adres:</strong> {carPolicyInformation?.customer?.address}</p>
                       <p><strong>Telefon:</strong> {carPolicyInformation?.customer?.phone}</p>
@@ -303,49 +301,20 @@ const CreateCarPolicy = () => {
                       <p><strong>Poliçe Açıklaması:</strong> {policyDescription}</p>
                       <p><strong>Başlangıç Tarihi:</strong> {policyStartDate ? policyStartDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
                       <p><strong>Bitiş Tarihi:</strong> {policyEndDate ? policyEndDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
-                      <p><strong>Poliçe Türü:</strong> {policyType}</p>
+                      <p><strong>Poliçe Türü:</strong> {policyType === 100 ? "Kasko" : policyType === 101 ? "Trafik" : "Bilinmeyen"}</p>
                       <p><strong>Poliçe Fiyatı:</strong> {carPolicyInformation.amount}</p>
 
                     </div>
                   </div>
                 </div>
               </div>
-
-              <br />
-              <div className="col-4">
-                <label htmlFor="inputPolicyStatus" className="form-label">ONAY{" -->"}</label>
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  id="inputPolicyStatus"
-                  checked={policyStatus}
-                  disabled={loading}
-                  onChange={(e) => setPolicyStatus(e.target.checked)}
-                />
-              </div>
-
-              <div className="col-4">
-                <label htmlFor="inputSave" className="form-label">TEKLİFİ KAYDET{" -->"}</label>
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  id="inputSave"
-                  checked={savedPolicy}
-                  disabled={loading}
-                  onChange={(e) => setSavedPolicy(e.target.checked)}
-                />
-              </div>
               <br />
               <div>
-                <p className="text-primary">
-                  ONAY VERİLMESİ DURUMUNDA TEKLİF OTOMATİK KAYDEDİLECEKTİR.
-                </p>
               </div>
             </div>
           </div>
           <div className="modal-footer">
             <button type="button" className="btn btn-danger" onClick={() => setShouldOpenModal(false)}>Kapat</button>
-            <button type="button" className="btn btn-success" onClick={handleConfirmPolicy}>Onaylıyorum</button>
           </div>
         </div>
       </div>

@@ -45,7 +45,7 @@ export const getAllCarPolicyByPlate = createAsyncThunk<Array<CarPolicyDto>, { tc
 );
 
 const getAllCarPolicyByPlateSlice = createSlice({
-    name: 'getAllCarPolicyByDate',
+    name: 'getCarPolicyByPlate',
     initialState,
     extraReducers: (builder) => {
         builder.addCase(getAllCarPolicyByPlate.pending, (state, action) => {

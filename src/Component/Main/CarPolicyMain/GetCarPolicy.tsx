@@ -11,13 +11,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPen } from '@fortawesome/free-solid-svg-icons';
 import  Spinner  from '../../Shared/Spinner';
 import CarPolicyStateEnum from '../../../infrastructure/Enums/CarPolicyStateEnum';
+import CarPolicyState from '../../../infrastructure/Enums/CarPolicyStateEnum';
 
 const GetCarPolicy = () => {
     const dispatch = useAppDispatch();
     const carPolicyEntity = useAppSelector((state) => state.getCarPolicy.data);
     const responseStatus = useAppSelector((state) => state.getCarPolicy.responseStatus);
     
-    const state = useAppSelector((state) => state.getCarPolicy.state);
+    const responseStateOfCarPolicy = useAppSelector((state) => state.getCarPolicy.state);
     const [loading, setLoading] = useState<boolean>(false);
     const [policyId, setPolicyId] = useState<number>(0);
     const toastRef = useRef<Toast>(null);
@@ -25,9 +26,7 @@ const GetCarPolicy = () => {
 
 
 
-    useEffect(() => {
-      
-        
+    useEffect(() => {    
         return () => {
             dispatch(resetCarPolicyState()); 
         };
@@ -44,7 +43,7 @@ const GetCarPolicy = () => {
     
         if (response.meta.requestStatus === 'fulfilled') {
             
-
+            
             console.log("FULFILLED");
             console.log(carPolicyEntity);
 
@@ -82,6 +81,9 @@ const GetCarPolicy = () => {
         try {
             console.log(policyId, "policyId");
             const resultAction = await dispatch(deleteCarPolicy({ policyId }));
+
+            console.log(resultAction, "resultAction");
+
             if (resultAction.meta.requestStatus === 'fulfilled') {
                 toastRef.current?.show({
                     severity: 'success',
@@ -89,6 +91,7 @@ const GetCarPolicy = () => {
                     detail: 'Poliçe Başarılı Bir Şekilde Silinmiştir.',
                     life: 2000
                 });
+                dispatch(resetCarPolicyState())
             } else {
                 toastRef.current?.show({
                     severity: 'error',
@@ -96,6 +99,7 @@ const GetCarPolicy = () => {
                     detail: 'Silerken Bir Hata Oldu',
                     life: 2000
                 });
+                dispatch(resetCarPolicyState())
             }
         } catch (error) {
             console.error('Error during deletion:', error);
@@ -105,6 +109,7 @@ const GetCarPolicy = () => {
                 detail: 'Lütfen Tekrar Deneyiniz. İşleminiz Yapılamadı.',
                 life: 2000
             });
+            dispatch(resetCarPolicyState())
         }
     };
 
@@ -163,7 +168,11 @@ const GetCarPolicy = () => {
                                 <td>
                                 {carPolicy.policyType === 101 ? 'Kasko' : carPolicy.policyType === 102 ? 'Trafik' : ''}
                                 </td>
-                                <td>{carPolicy.tckn === undefined ? '' :carPolicy.policyStatus ? 'Aktif' : 'Pasif'}</td>
+                                <td>
+                                {carPolicy.tckn === undefined 
+                                    ? '' 
+                                    : CarPolicyState[carPolicy.state as keyof typeof CarPolicyState]}
+                                </td>
                                 <td>{carPolicy.policyStartDate ? new Date(carPolicy.policyStartDate).toLocaleDateString() : ''}</td>
                                 <td>{carPolicy.policyEndDate ? new Date(carPolicy.policyEndDate).toLocaleDateString() : ''}</td>
                                 <td>{carPolicy.policyAmount}</td>
@@ -171,14 +180,14 @@ const GetCarPolicy = () => {
                                 <td>{carPolicy.tckn}</td>
                                 <td>{carPolicy.policyOfferDate}</td>
                                 <td>
-                                    {carPolicyEntity.policyAmount > 0 && carPolicy.state !== CarPolicyStateEnum.ACCEPTED && (
+                                    {carPolicyEntity.policyAmount > 0 && carPolicy.state === CarPolicyStateEnum.CREATED && (
                                         <button className="btn btn-danger" onClick={() => removeCarPolicy(carPolicy.policyId)}>
                                             <FontAwesomeIcon icon={faTrash} />
                                         </button>
                                     )}
                                 </td>
                                 <td>
-                                    {carPolicyEntity.policyAmount > 0 && carPolicy.state !== CarPolicyStateEnum.ACCEPTED && (
+                                    {carPolicyEntity.policyAmount > 0 && carPolicy.state === CarPolicyStateEnum.CREATED && (
                                         <button className="btn btn-info" onClick={() => updateCarPolicyFunc(carPolicy)}>
                                             <FontAwesomeIcon icon={faPen} />
                                         </button>

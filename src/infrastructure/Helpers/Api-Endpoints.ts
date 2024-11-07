@@ -20,6 +20,8 @@ export default {
 		GetCustomerPolicies_WDate: `${baseUrl_v2}/carPolicy/customerPoliciesBetweenDate`,
 		GetCustomerPolicies_WPlate: `${baseUrl_v2}/carPolicy/byPlate`,
 		TotalCarPolicy: `${baseUrl_v2}/carPolicy/totalRecord`,
+		Accept: `${baseUrl_v2}/carPolicy/accepted`,
+		Reject: `${baseUrl_v2}/carPolicy/rejected`,
 	},
 	LicensePlate:{
 		GetWithCustomer: `${baseUrl_v1}/licensePlate/WCustomer`,

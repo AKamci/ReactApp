@@ -17,6 +17,8 @@ import DeleteCarPolicySlice from './Slices/CarPolicySlices/DeleteCarPolicy-Slice
 import GetAllCarPolicySlice from './Slices/CarPolicySlices/GetAllCarPolicy-Slice';
 import GetAllCarPolicyCustomer from './Slices/CarPolicySlices/GetAllCarPolicyCustomer-Slice';
 import GetCarPolicy from './Slices/CarPolicySlices/GetCarPolicy-Slice';
+import AcceptCarPolicy from './Slices/CarPolicySlices/AcceptCarPolicy';
+import RejectCarPolicy from './Slices/CarPolicySlices/RejectCarPolicy';
 import GetAllCarPolicyByDate from './Slices/CarPolicySlices/GetCarPolicyByDate';
 import GetAllCarPolicyByPlate from './Slices/CarPolicySlices/GetCarPolicyByPlate-Slice';
 import TotalRecordOfCarPolicy from './Slices/CarPolicySlices/TotalRecordOfCarPolicy-Slice';
@@ -56,6 +58,8 @@ const store = configureStore({
 		getCarPolicyByDate: GetAllCarPolicyByDate,
 		getCarPolicyByPlate: GetAllCarPolicyByPlate,
 		totalRecordCarPolicy: TotalRecordOfCarPolicy,
+		acceptCarPolicy: AcceptCarPolicy,
+		rejectCarPolicy: RejectCarPolicy,
 
 
 		//	LICENSE PLATE STORE
@@ -72,6 +76,7 @@ const store = configureStore({
 		createWeight: CreateWeight,
 		getListWeight: GetListWeight,
 		updateListWeight: UpdateListWeight
+		
 
 
 

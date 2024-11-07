@@ -21,12 +21,18 @@ const initialState = {
     errorMessage: null    
 } as CarPolicyState;
 
-export const updateCarPolicy = createAsyncThunk<CarPolicyDto, { dto: CarPolicyDto }, { state: CarPolicyState }>(
-    'updateCarPolicy',
-    async ({ dto }, { rejectWithValue }) => {
-        console.log(dto, "DTO")
+export const acceptCarPolicy = createAsyncThunk<CarPolicyDto, { policyId: number }, { state: CarPolicyState }>(
+    'acceptCarPolicy',
+    async ({ policyId }, { rejectWithValue }) => {
+        console.log("ID : ")
+        console.log(policyId)
+        
         try {
-            const response = await axios.put<CarPolicyDto>(Endpoints.CarPolicy.Update,dto);
+            const response = await axios.get<CarPolicyDto>(Endpoints.CarPolicy.Accept, {
+                params: {				
+                    policyId: policyId
+                }
+            });
             console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {
@@ -39,23 +45,23 @@ export const updateCarPolicy = createAsyncThunk<CarPolicyDto, { dto: CarPolicyDt
     }
 );
 
-const updateCarPolicySlice = createSlice({
-    name: 'updateCarPolicy',
+const acceptCarPolicySlice = createSlice({
+    name: 'acceptCarPolicy',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(updateCarPolicy.pending, (state, action) => {
+        builder.addCase(acceptCarPolicy.pending, (state, action) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   
         });
-        builder.addCase(updateCarPolicy.fulfilled, (state, action) => {
+        builder.addCase(acceptCarPolicy.fulfilled, (state, action) => {
             console.log("Müşteri verisi Redux'a geldi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  
             state.errorMessage = null;   
         });
-        builder.addCase(updateCarPolicy.rejected, (state, action) => {
+        builder.addCase(acceptCarPolicy.rejected, (state, action) => {
             state.state = ApiState.Rejected;
             if (action.payload) {
                 state.responseStatus = (action.payload as any).status;  
@@ -70,9 +76,15 @@ const updateCarPolicySlice = createSlice({
         setActiveRequest: (state, action) => {
             state.activeRequest = action.payload;
         },
+        resetCarPolicyState: (state) => {
+            state.data = {} as CarPolicyDto; 
+            state.state = ApiState.Idle;
+            state.responseStatus = null;
+            state.errorMessage = null;
+        },
     },
 });
 
-export const { setActiveRequest } = updateCarPolicySlice.actions;
+export const { setActiveRequest, resetCarPolicyState } = acceptCarPolicySlice.actions;
 
-export default updateCarPolicySlice.reducer;
+export default acceptCarPolicySlice.reducer;

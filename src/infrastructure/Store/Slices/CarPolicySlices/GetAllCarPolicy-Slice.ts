@@ -22,12 +22,12 @@ const initialState = {
 } as CarPolicyState;
 
 export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: number, size: number, policyName: string,
-    policyDescription: string,  policyType: string,  policyStatus: Boolean,  policyAmount: number,  
+    policyDescription: string,  policyType: string,  state: CarPolicyState,  policyAmount: number,  
     licensePlateNumber: string, tckn: string,  policyStartDate: Date,  policyEndDate: Date}, 
     { state: CarPolicyState }>(
     'carPolicy/list',
     async ({ page, size, policyName, policyDescription, 
-        policyType, policyStatus, policyAmount, licensePlateNumber, 
+        policyType, state, policyAmount, licensePlateNumber, 
         tckn, policyStartDate, policyEndDate
     }, { rejectWithValue }) => {
        
@@ -39,7 +39,7 @@ export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: num
             if (policyName) query += `&policyName=${encodeURIComponent(policyName)}`;
             if (policyDescription) query += `&policyDescription=${encodeURIComponent(policyDescription)}`;
             if (policyType) query += `&policyType=${encodeURIComponent(policyType)}`;
-            if (policyStatus !== null && policyStatus !== undefined) query += `&policyStatus=${policyStatus}`;
+            if (state !== null && state !== undefined) query += `&state=${state}`;
             if (policyAmount) query += `&policyAmount=${encodeURIComponent(policyAmount)}`;
             if (licensePlateNumber) query += `&licensePlateNumber=${encodeURIComponent(licensePlateNumber)}`;
             if (tckn) query += `&tckn=${encodeURIComponent(tckn)}`;
@@ -66,7 +66,7 @@ export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: num
 );
 
 const getAllCarPolicySlice = createSlice({
-    name: 'getAllCarPolicy',
+    name: 'allCarPolicy',
     initialState,
     extraReducers: (builder) => {
         builder.addCase(getAllCarPolicy.pending, (state, action) => {

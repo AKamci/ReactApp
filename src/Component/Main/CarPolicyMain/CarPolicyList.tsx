@@ -6,6 +6,7 @@ import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { totalRecordCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/TotalRecordOfCarPolicy-Slice';
 import Spinner from '../../Shared/Spinner';
 import ApiState from '../../../infrastructure/Enums/ApiState';
+import CarPolicyState from '../../../infrastructure/Enums/CarPolicyStateEnum';
 
 const CarPolicyList = () => {
     const dispatch = useAppDispatch();
@@ -25,7 +26,7 @@ const CarPolicyList = () => {
     const [policyTypeFilter, setPolicyTypeFilter] = useState<number | null>(null); 
     const [customerTCKN, setCustomerTCKN] = useState<string>('');
     const [carPlate, setCarPlate] = useState<string>(''); 
-    const [policyStatus, setPolicyStatus] = useState<boolean | null>(null);
+    const [policyStatus, setPolicyStatus] = useState<CarPolicyState | null>(null);
     const toast = useRef<Toast>(null);
     const [filtersCleared, setFiltersCleared] = useState<boolean>(false); // New state to track clearing filters
 
@@ -35,7 +36,7 @@ const CarPolicyList = () => {
         dispatch(getAllCarPolicy({ 
             page: first / rows, 
             size: rows,
-            policyStatus: policyStatus,
+            state: policyStatus,
             tckn: customerTCKN ? customerTCKN : null,
             policyType: policyTypeFilter !== null ? policyTypeFilter : null, 
             licensePlateNumber: carPlate ? carPlate : null, 
@@ -70,8 +71,17 @@ const CarPolicyList = () => {
         }
     
         const filters = [];
-        if (policyStatus !== null) filters.push(`Durum: ${policyStatus ? 'Aktif' : 'Pasif'}`);
-        if (policyTypeFilter !== null) filters.push(`Tür: ${policyTypeFilter}`);
+        if (policyStatus !== null) filters.push(`Durum: ${policyStatus}`);
+        if (policyTypeFilter !== null) {
+            if (policyTypeFilter === 101) {
+                filters.push("Tür: Kasko");
+            } else if (policyTypeFilter === 100) {
+                filters.push("Tür: Trafik");
+            } else {
+                filters.push(`Tür: ${policyTypeFilter}`);
+            }
+        }
+        
         if (customerTCKN) filters.push(`TCKN: ${customerTCKN}`);
         if (carPlate) filters.push(`Plaka: ${carPlate}`);
         if (policyDateStart && policyDateEnd) filters.push(`Tarih Aralığı: ${policyDateStart} - ${policyDateEnd}`);
@@ -93,7 +103,7 @@ const CarPolicyList = () => {
         await dispatch(getAllCarPolicy({ 
             page: 0, 
             size: rows, 
-            policyStatus: policyStatus,
+            state: policyStatus,
             tckn: customerTCKN,
             policyType: policyTypeFilter, 
             licensePlateNumber: carPlate, 
@@ -151,16 +161,19 @@ const CarPolicyList = () => {
                     </div>
     
                     {selectedFilter === 'policyStatus' && (
-                        <select
-                            value={policyStatus !== null ? policyStatus.toString() : ''}
-                            onChange={(e) => setPolicyStatus(e.target.value === 'true')}
-                            className="form-control mb-3"
-                        >
-                            <option value=''>Poliçe Durumunu Seçin</option>
-                            <option value="true">Aktif</option>
-                            <option value="false">Pasif</option>
-                        </select>
-                    )}
+                    <select
+                        value={policyStatus || ''}
+                        onChange={(e) => setPolicyStatus(e.target.value)}
+                        className="form-control mb-3"
+                    >
+                        <option value=''>Poliçe Durumunu Seçin</option>
+                        {Object.values(CarPolicyState).map((status) => (
+                            <option key={status} value={status}>
+                                {status}
+                            </option>
+                        ))}
+                    </select>
+                )}
     
                         {selectedFilter === 'policyType' && (
                         <select
@@ -242,7 +255,11 @@ const CarPolicyList = () => {
                                         <td>
                                         {carPolicy.policyType === 101 ? 'Kasko' : carPolicy.policyType === 102 ? 'Trafik' : ''}
                                         </td>
-                                        <td>{carPolicy.policyStatus ? 'Aktif' : 'Pasif'}</td>
+                                        <td>
+                                        {carPolicy.tckn === undefined 
+                                            ? '' 
+                                            : CarPolicyState[carPolicy.state as keyof typeof CarPolicyState]}
+                                        </td>
                                         <td>{carPolicy.policyAmount}</td>
                                         <td>{carPolicy.policyStartDate ? new Date(carPolicy.policyStartDate).toLocaleDateString() : 'Tarih Yok'}</td>
                                         <td>{carPolicy.policyEndDate ? new Date(carPolicy.policyEndDate).toLocaleDateString() : 'Tarih Yok'}</td>

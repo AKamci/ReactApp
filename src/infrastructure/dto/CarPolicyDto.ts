@@ -7,7 +7,6 @@ export interface CarPolicyDto {
     policyName: string;
     policyDescription: string;
     policyType: number;
-    policyStatus: Boolean;
     policyStartDate: Date;
     policyOfferDate: Date;
     policyEndDate: Date;

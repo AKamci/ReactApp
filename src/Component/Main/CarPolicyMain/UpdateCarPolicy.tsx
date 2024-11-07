@@ -9,6 +9,8 @@ import { updateCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicyS
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai';
 import { getCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/GetCarPolicy-Slice';
 import { getPlateWithCustomer } from '../../../infrastructure/Store/Slices/LicensePlateSlices/GetPlateWithCustomer-Slice';
+import { acceptCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/AcceptCarPolicy';
+import { rejectCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/RejectCarPolicy';
 
 const UpdateCarPolicy = () => {
   const dispatch = useAppDispatch();
@@ -122,20 +124,9 @@ const UpdateCarPolicy = () => {
   };
   
   const accept = async () => {
-    const formData = {
-      policyId,
-      policyDescription,
-      policyType,
-      policyStatus,
-      policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
-      policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null,
-      policyAmount,
-      policyOfferDate: new Date().toISOString().split('T')[0],
-    };
+   
 
-    console.log(JSON.stringify(formData, null, 2));
-
-    dispatch(updateCarPolicy({ dto: formData }));
+    dispatch(acceptCarPolicy({ policyId }));
 
     setLoading(true);
     await toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Poliçe Başarıyla Güncellendi.', life: 2000 });
@@ -166,8 +157,17 @@ const UpdateCarPolicy = () => {
 
 
 
-  const reject = () => {
-    toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Poliçe oluşturmak için onay vermelisiniz.', life: 2000 });
+  const reject = async () => {
+    
+    dispatch(rejectCarPolicy({ policyId }));
+
+    setLoading(true);
+    toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Poliçe Başarıyla Güncellendi.', life: 2000 });
+
+    setTimeout(() => {
+      setLoading(false);
+      navigate('/carPolicy/list');
+    }, 2000);
   };
 
   return (
@@ -223,13 +223,9 @@ const UpdateCarPolicy = () => {
           className="form-control"
           id="inputPolicyDescription"
           value={policyDescription}
-          disabled={loading}
+          disabled
           onChange={(e) => validateDescription(e.target.value)}
-          style={getInputStyle(descriptionValid)}
         />
-        <span className="input-group-text">
-          {descriptionValid ? <AiOutlineCheckCircle color="green" size={12} /> : <AiOutlineCloseCircle color="red" size={12} />}
-        </span>
       </div>
 
 
@@ -239,20 +235,8 @@ const UpdateCarPolicy = () => {
           type="text"
           className="form-control"
           id="inputPolicyName"
-          value={policyType}
+          value={policyType === 101 ? "Kasko" : policyType === 102 ? "Trafik" : ""}          
           disabled
-        />
-      </div>
-
-      <div className="col-md-2">
-        <label htmlFor="inputPolicyStatus" className="form-label">Durum</label>
-        <input
-          type="checkbox"
-          className="form-check-input"
-          id="inputPolicyStatus"
-          checked={policyStatus}
-          disabled={loading}
-          onChange={(e) => setPolicyStatus(e.target.checked)}
         />
       </div>
 
@@ -262,7 +246,7 @@ const UpdateCarPolicy = () => {
           value={policyStartDate}
           onChange={(e) => setPolicyStartDate(e.value as Date)}
           showIcon
-          disabled={loading}
+          disabled
         />
       </div>
 
@@ -272,7 +256,7 @@ const UpdateCarPolicy = () => {
           value={policyEndDate}
           onChange={(e) => setPolicyEndDate(e.value as Date)}
           showIcon
-          disabled={loading}
+          disabled
         />
       </div>
 
@@ -289,28 +273,40 @@ const UpdateCarPolicy = () => {
       </div>
 
       <div className="col-12">
-        <ConfirmPopup
-          target={buttonEl.current || undefined}
-          visible={visible}
-          onHide={() => setVisible(false)}
-          message="Poliçeyi güncellemek istediğinize emin misiniz?"
-          icon="pi pi-exclamation-triangle"
-          accept={accept}
-          reject={reject}
-          acceptLabel='Evet'
-          rejectLabel='Hayır'
-        />
+  <ConfirmPopup
+    target={buttonEl.current || undefined}
+    visible={visible}
+    onHide={() => setVisible(false)}
+    message="Poliçeyi güncellemek istediğinize emin misiniz?"
+    icon="pi pi-exclamation-triangle"
+    accept={accept}
+    reject={reject}
+    acceptLabel="Evet"
+    rejectLabel="Hayır"
+  />
 
-        <Button
-          ref={buttonEl}
-          label={loading ? 'Yükleniyor...' : 'Poliçeyi Güncelle'}
-          type="submit"
-          className='p-button-success'
-          icon="pi pi-check"
-          disabled={loading}
-          onClick={handleConfirm}
-        />
-      </div>
+  <Button
+    ref={buttonEl}
+    label="Kabul Et"
+    type="button"
+    className="p-button-success"
+    icon="pi pi-check"
+    onClick={accept}
+    style={{ marginRight: '10px' }} 
+  />
+
+  <Button
+    ref={buttonEl}
+    label="Reddet"
+    type="button"
+    className="p-button-danger"
+    icon="pi pi-times"
+    onClick={reject}
+  />
+</div>
+
+
+      
 
 
       

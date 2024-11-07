@@ -23,6 +23,7 @@ const GetCustomer = () => {
     const navigate = useNavigate();
 
 
+    
     useEffect(() => {
       
         
@@ -34,11 +35,22 @@ const GetCustomer = () => {
 
 
     const load = async () => {
-        if (tckn.length !== 11) {
+        if (!(/^[1-9]\d{10}$/).test(tckn)) {
             toastRef.current?.show({
                 severity: 'warn',
                 summary: 'Uyarı',
                 detail: 'TCKN 11 haneli olmalıdır.',
+                life: 3000
+            });
+            return;
+        }
+        const isValidTCKN = validTCKN(tckn)
+        if(!isValidTCKN)
+        {
+            toastRef.current?.show({
+                severity: 'error',
+                summary: 'Hata',
+                detail: 'TCKN Doğru Girilmedi.',
                 life: 3000
             });
             return;

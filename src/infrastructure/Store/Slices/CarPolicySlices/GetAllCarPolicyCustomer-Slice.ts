@@ -40,7 +40,7 @@ export const getAllCustomerCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { t
 );
 
 const getAllCustomerCarPolicySlice = createSlice({
-    name: 'gelAllCarPolicy',
+    name: 'allCustomerCarPolicy',
     initialState,
     extraReducers: (builder) => {
         builder.addCase(getAllCustomerCarPolicy.pending, (state, action) => {
