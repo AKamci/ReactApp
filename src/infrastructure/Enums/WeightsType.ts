@@ -6,7 +6,8 @@ enum WeightsType {
     CAR_PRICE = 'CAR_PRICE',
     POLICY_TYPE = 'POLICY_TYPE',
     CONSTANT = 'CONSTANT',
-    CAR_AGE = 'CAR_AGE'
+    CAR_AGE = 'CAR_AGE',
+    CAR_TYPE = 'CAR_TYPE'
 
 }
 

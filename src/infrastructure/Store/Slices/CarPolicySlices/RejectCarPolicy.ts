@@ -28,7 +28,7 @@ export const rejectCarPolicy = createAsyncThunk<CarPolicyDto, { policyId: number
         console.log(policyId)
         
         try {
-            const response = await axios.get<CarPolicyDto>(Endpoints.CarPolicy.Reject, {
+            const response = await axios.put<CarPolicyDto>(Endpoints.CarPolicy.Reject, {
                 params: {				
                     policyId: policyId
                 }

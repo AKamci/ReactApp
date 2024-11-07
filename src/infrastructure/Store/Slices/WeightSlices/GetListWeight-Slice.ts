@@ -28,6 +28,7 @@ export const getAllWeight = createAsyncThunk<Array<WeightDto>, void, { state: We
             const response = await axios.get<Array<WeightDto>>(query);
 
             console.log("Status:", response.status);
+            
             return response.data;
         } catch (error: any) {
             const status = error.response ? error.response.status : 500;
@@ -51,7 +52,8 @@ const getAllWeightSlice = createSlice({
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  
-            state.errorMessage = null;   
+            state.errorMessage = null;
+            console.log(action.payload, "action.payload")   
         });
         builder.addCase(getAllWeight.rejected, (state, action) => {
             state.state = ApiState.Rejected;
