@@ -22,12 +22,12 @@ const initialState = {
 } as CarPolicyState;
 
 export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: number, size: number, policyName: string,
-    policyDescription: string,  policyType: string,  state: CarPolicyState,  policyAmount: number,  
+    policyDescription: string,  coverage: string,  state: CarPolicyState,  policyAmount: number,  
     licensePlateNumber: string, tckn: string,  policyStartDate: Date,  policyEndDate: Date}, 
     { state: CarPolicyState }>(
     'carPolicy/list',
     async ({ page, size, policyName, policyDescription, 
-        policyType, state, policyAmount, licensePlateNumber, 
+        coverage, state, policyAmount, licensePlateNumber, 
         tckn, policyStartDate, policyEndDate
     }, { rejectWithValue }) => {
        
@@ -38,7 +38,7 @@ export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: num
 
             if (policyName) query += `&policyName=${encodeURIComponent(policyName)}`;
             if (policyDescription) query += `&policyDescription=${encodeURIComponent(policyDescription)}`;
-            if (policyType) query += `&policyType=${encodeURIComponent(policyType)}`;
+            if (coverage) query += `&coverage=${encodeURIComponent(coverage)}`;
             if (state !== null && state !== undefined) query += `&state=${state}`;
             if (policyAmount) query += `&policyAmount=${encodeURIComponent(policyAmount)}`;
             if (licensePlateNumber) query += `&licensePlateNumber=${encodeURIComponent(licensePlateNumber)}`;

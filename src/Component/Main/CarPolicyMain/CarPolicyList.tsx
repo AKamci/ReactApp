@@ -38,7 +38,7 @@ const CarPolicyList = () => {
             size: rows,
             state: policyStatus,
             tckn: customerTCKN ? customerTCKN : null,
-            policyType: policyTypeFilter !== null ? policyTypeFilter : null, 
+            coverage: policyTypeFilter !== null ? policyTypeFilter : null, 
             licensePlateNumber: carPlate ? carPlate : null, 
             policyStartDate: policyDateStart ? policyDateStart.toISOString().split('T')[0] : null, 
             policyEndDate: policyDateEnd ? policyDateEnd.toISOString().split('T')[0] : null
@@ -73,9 +73,9 @@ const CarPolicyList = () => {
         const filters = [];
         if (policyStatus !== null) filters.push(`Durum: ${policyStatus}`);
         if (policyTypeFilter !== null) {
-            if (policyTypeFilter === 101) {
+            if (policyTypeFilter === 102) {
                 filters.push("Tür: Kasko");
-            } else if (policyTypeFilter === 100) {
+            } else if (policyTypeFilter === 101) {
                 filters.push("Tür: Trafik");
             } else {
                 filters.push(`Tür: ${policyTypeFilter}`);
@@ -105,7 +105,7 @@ const CarPolicyList = () => {
             size: rows, 
             state: policyStatus,
             tckn: customerTCKN,
-            policyType: policyTypeFilter, 
+            coverage: policyTypeFilter, 
             licensePlateNumber: carPlate, 
             policyStartDate: policyDateStart, 
             policyEndDate: policyDateEnd,
@@ -182,8 +182,8 @@ const CarPolicyList = () => {
                             className="form-control mb-3"
                         >
                             <option value=''>Poliçe Türünü Seçin</option>
-                            <option value="101">Kasko</option>
-                            <option value="102">Trafik</option>
+                            <option value="101">Trafik</option>
+                            <option value="102">Kasko</option>
                         </select>
                     )}
 
@@ -253,7 +253,7 @@ const CarPolicyList = () => {
                                         <td>{carPolicy.policyId}</td>
                                         <td>{carPolicy.policyDescription}</td>
                                         <td>
-                                        {carPolicy.policyType === 101 ? 'Kasko' : carPolicy.policyType === 102 ? 'Trafik' : ''}
+                                        {carPolicy.coverage === 101 ? 'Trafik' : carPolicy.coverage === 102 ? 'Kasko' : ''}
                                         </td>
                                         <td>
                                         {carPolicy.tckn === undefined 

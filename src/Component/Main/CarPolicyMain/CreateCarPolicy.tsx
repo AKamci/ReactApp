@@ -102,10 +102,7 @@ const CreateCarPolicy = () => {
         setShouldOpenModal(false);
       }
     }
-
     //Alınan  veri ile poliçenin yaratılması.
-
-
     await dispatch(createCarPolicy({
       dto: {
         policyDescription,

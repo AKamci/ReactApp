@@ -63,6 +63,15 @@ const Navbar = () => {
                 <FontAwesomeIcon icon={faCalculator} /> Parametre Ayarlama
               </NavLink>
             </li>
+            <li className='nav-item'>
+              <NavLink
+                to='/earthQuake'
+                className={({ isActive }) => 
+                  isActive ? 'nav-link active-link' : 'nav-link'
+                }>
+                <FontAwesomeIcon icon={faCalculator} /> Deprem Poliçesi
+              </NavLink>
+            </li>
           </ul>
         </div>
       </div>

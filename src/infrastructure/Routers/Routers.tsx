@@ -13,6 +13,13 @@ import GetCarPolicyPage from '../../Component/Pages/CarPolicyPages/GetCarPolicyP
 import CreateCarPolicyPage from '../../Component/Pages/CarPolicyPages/CreateCarPolicyPage';
 import UpdateCarPolicyPage from '../../Component/Pages/CarPolicyPages/UpdateCarPolicyPage';
 import WeightsPage from '../../Component/Pages/WeightsPage';
+import { EarthquakePage } from '../../Component/Pages/EarthquakePage';
+import CreateEarthquakePolicyPage from '../../Component/Pages/EarthquakePages/CreateEarthquakePolicyPage';
+import UpdateEarthquakePolicyPage from '../../Component/Pages/EarthquakePages/UpdateEarthquakePolicyPage';
+import GetEarthquakePolicyPage from '../../Component/Pages/EarthquakePages/GetEarthquakePolicyPage';
+import EarthquakePolicyListPage from '../../Component/Pages/EarthquakePages/EarthquakePolicyListPage';
+
+
 
 
 const Routers = () => {
@@ -31,7 +38,13 @@ const Routers = () => {
 				<Route path='/carPolicy/getCarPolicy' element={<GetCarPolicyPage />} />
 				<Route path='/carPolicy/list' element={<CarPolicyListPage />} />
 				<Route path='/carPolicy/updateCarPolicy' element={<UpdateCarPolicyPage />} />
-				<Route path='/setWeight' element={<WeightsPage />} />
+
+
+				<Route path='/earthQuake' element={<EarthquakePage />} />
+				<Route path='/earthQuake/createEarthQuakePolicy' element={<CreateEarthquakePolicyPage />} />
+				<Route path='/earthQuake/updateEarthQuakePolicy' element={<UpdateEarthquakePolicyPage />} />
+				<Route path='/earthQuake/getEarthQuakePolicy' element={<GetEarthquakePolicyPage />} />
+				<Route path='/earthQuake/list' element={<EarthquakePolicyListPage />} />
 
 				
 

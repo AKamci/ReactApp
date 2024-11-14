@@ -1,3 +1,5 @@
+import EarthquakePolicyListPage from "../../Component/Pages/EarthquakePages/EarthquakePolicyListPage";
+
 const baseUrl_v1 = 'http://localhost:8080/api/v1';
 const baseUrl_v2 = 'http://localhost:8080/api/v1';
 
@@ -35,6 +37,15 @@ export default {
 		UpdateWeight: `${baseUrl_v1}/weight`,
 		GetListWeight:`${baseUrl_v1}/weight/list`,
 		UpdateListWeight:`${baseUrl_v1}/weight/saveAll`
+	},
+
+	EarthquakePolicy:{
+		CreateEarthquake: `${baseUrl_v1}/earthQuake`,
+
+		
+	},
+	House:{
+		GetWithCustomer: `${baseUrl_v1}/house`,
 	},
 
 };

@@ -1,17 +1,15 @@
 import CarPolicyStateEnum from "../Enums/CarPolicyStateEnum";
-import { CustomerDto } from "./CustomerDto";
-import { LicensePlateDto } from "./LicensePlateDto";
+import { CoverageDto } from "./CoverageDto";
+import { HouseDto } from "./HouseDto";
 
-export interface CarPolicyDto {
+export interface EarthquakePolicyDto {
     policyId: number;
-    policyName: string;
-    policyDescription: string;
-    coverage: number;
+    coverage: CoverageDto;
     policyStartDate: Date;
     policyOfferDate: Date;
     policyEndDate: Date;
     policyAmount: number;
-    licensePlateNumber: string;
     tckn: string;
     state: CarPolicyStateEnum;
+    house: HouseDto;
 }

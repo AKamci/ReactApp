@@ -32,6 +32,9 @@ import CreateWeight from './Slices/WeightSlices/CreateWeight-Slice';
 import GetListWeight from './Slices/WeightSlices/GetListWeight-Slice';
 import UpdateListWeight from './Slices/WeightSlices/UpdateListWeight-Slice';
 
+import  createEarthquakePolicy  from './Slices/EarthQuakeSlices/CreateEarthquake-Slice';
+import GetHouseWithCustomerSlice from './Slices/HouseSlices/GetHouseWithCustomer-Slice';
+
 
 
 
@@ -67,7 +70,6 @@ const store = configureStore({
 		getPlateWithCustomer: GetPlateWithCustomer,
 
 
-
 		// WEIGHT STORE
 
 		getWeight : GetWeight,
@@ -75,7 +77,16 @@ const store = configureStore({
 		deleteWeight: DeleteWeight,
 		createWeight: CreateWeight,
 		getListWeight: GetListWeight,
-		updateListWeight: UpdateListWeight
+		updateListWeight: UpdateListWeight,
+
+
+		// EARTHQUAKE 
+
+		createEarthquake: createEarthquakePolicy,
+
+		getHouseWithCustomer: GetHouseWithCustomerSlice,
+
+		
 		
 
 
