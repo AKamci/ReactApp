@@ -45,7 +45,8 @@ export default {
 		
 	},
 	House:{
-		GetWithCustomer: `${baseUrl_v1}/house`,
+		GetWithCustomer: `${baseUrl_v1}/house/WCustomer`,
+		
 	},
 
 };

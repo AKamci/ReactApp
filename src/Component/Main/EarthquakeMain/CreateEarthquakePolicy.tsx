@@ -14,6 +14,7 @@ const CreateEarthquakePolicy = () => {
   const responseStatus = useAppSelector((state) => state.createEarthquake.responseStatus);
   
   const houseWithCustomer = useAppSelector((state) => state.getHouseWithCustomer.data);
+  
 
   const toast = useRef<Toast>(null);
   const data = AddressData;
@@ -35,6 +36,8 @@ const CreateEarthquakePolicy = () => {
   const [policyEndDate, setPolicyEndDate] = useState<Date | null>(null);
   const [policyAmount, setPolicyAmount] = useState<number | null>(null);
   const [policyCoverage, setPolicyCoverage] = useState<number | null>(null);
+  const [houseData, setHouseData] = useState<any | null>(null);
+
 
 
   const [TCKN, setTCKN] = useState<string>('');
@@ -66,6 +69,14 @@ const CreateEarthquakePolicy = () => {
       toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Lütfen daire seçiniz.' });
       return false;
     }
+    if (!policyStartDate) {
+      toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Lütfen başlangıç tarihi seçiniz.' });
+      return false;
+    }
+    if (!policyCoverage) {
+      toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Lütfen sigorta kapsamı seçiniz.' });
+      return false;
+    }
     return true;
   };
 
@@ -90,89 +101,83 @@ const CreateEarthquakePolicy = () => {
       return;
     }
     setLoading(true);
-  
-    const formData = {
-      city: selectedIl,
-      district: selectedIlce,
-      neighborhood: selectedMahalle,
-      apartmentNumber: selectedApartman,
-      number: selectedDaire,
-      tckn: TCKN,
-    };
-  
-    try {
-      console.log("Poliçe oluşturma verileri:", formData);
-      await dispatch(createEarthquakePolicy({ dto: formData })).unwrap();
-      setVisible(false);
-      toast.current?.show({ severity: 'success', summary: 'Başarılı', detail: 'Poliçe başarıyla oluşturuldu.' });
-    } catch (error) {
-      console.error("Poliçe oluşturulurken hata:", error);
-      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Poliçe oluşturulurken bir hata oluştu.' });
-    } finally {
-      setLoading(false);
-    }
   };
+
 
   const accept = async () => {
     console.log(shouldOpenModal);
-    setShouldOpenModal(true);
     console.log(policyStartDate);
     console.log(policyEndDate);
 
     try {
-      const response = await dispatch(getHouseWithCustomer({
-        building: {
-          number: selectedDaire,
-          apartmentNumber: selectedApartman,
-          city: selectedIl,
-          district: selectedIlce,
-          neighborhood: selectedMahalle,
-          tckn: TCKN,
-        }
-      })).unwrap()
+      const requestDto = {
+        number: selectedDaire,
+        apartmentNumber: selectedApartman,
+        city: selectedIl,
+        district: selectedIlce,
+        neighborhood: selectedMahalle,
+      };
+      
+      console.log("Gönderilen DTO:", requestDto);
+      
+      const response = await dispatch(getHouseWithCustomer({ 
+        number: Number(requestDto.number), 
+        apartmentNumber: Number(requestDto.apartmentNumber), 
+        city: requestDto.city, 
+        district: requestDto.district, 
+        neighborhood: requestDto.neighborhood 
+      })).unwrap();
 
-      if (response && response.building) {
-        const waitForHouseInformation = new Promise((resolve) => {
-          const checkInformation = setInterval(() => {
-            if (houseWithCustomer) {
-              clearInterval(checkInformation);
-              resolve(houseWithCustomer);
-            }
-          }, 100);
-        });
+      console.log("API'den gelen yanıt:", response);
+      
+      if (response) {
+        // API'den gelen veriyi doğrudan kullanıyoruz
+        setHouseData(response);
 
-        await waitForHouseInformation;
-        while(!response)
+        if(!houseData.Amount)
         {
-          waitForHouseInformation
+          console.log("Veri boş geldi, lütfen kontrol ediniz");
+          console.log("Gelen veri:", houseData);
+          throw new Error("Ev bilgileri alınamadı");
         }
-        console.log("Veri alındı, şimdi başka işlemler yapabilirsiniz.");
-        console.log(houseWithCustomer);
+        else
+        {
+          console.log("Veri alındı, şimdi başka işlemler yapabilirsiniz.");
+          console.log(houseData);
+        }
+
+        const dto = {
+          houseId: houseData.id,
+          coverage: policyCoverage,
+          policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
+          policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null, 
+          policyOfferDate: new Date().toISOString().split('T')[0],
+          tckn: houseData.customer?.tckn,
+          policyAmount: houseData.Amount,
+        };
+
+        console.log('DTO:', dto);
+
+        const policyResponse = await dispatch(createEarthquakePolicy({
+          dto: dto
+        })).unwrap();
+
+        if (policyResponse) {
+          toast.current?.show({ severity: 'success', summary: 'Başarılı', detail: 'Deprem poliçesi başarıyla oluşturuldu.', life: 3000 });
+          setShouldOpenModal(true);
+        }
+      } else {
+        throw new Error("API'den veri alınamadı");
       }
-    } catch (error) {
+    } catch (error: any) {
       if (error.status === 404) {
         toast.current?.show({ severity: 'error', summary: 'Uyarı', detail: 'Ev bilgisi bulunamadı.', life: 3000 });
-        setShouldOpenModal(false); 
+      } else if (error.status === 500) {
+        toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Sunucuyla iletişime geçilemedi.', life: 3000 });
       } else {
         toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Bir hata oluştu.', life: 3000 });
-        setShouldOpenModal(false);
       }
     }
-
-    const dto = {
-      coverage: policyCoverage,
-      policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
-      policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null, 
-      policyOfferDate: new Date().toISOString().split('T')[0],
-      tckn: houseWithCustomer.customer?.tckn,
-      policyAmount,
-    };
-
-    console.log('DTO:', dto);
-
-    await dispatch(createEarthquakePolicy({
-      dto: dto
-    })).unwrap();
   };
 
   useEffect(() => {
@@ -357,15 +362,15 @@ const CreateEarthquakePolicy = () => {
 
           <Col>
             <Form.Group controlId="coverageSelect">
-              <Form.Label>Teminat Tutarı</Form.Label>
+              <Form.Label>Sigorta Kapsamı</Form.Label>
               <Form.Select 
-                value={policyAmount || ''}
+                value={policyCoverage || ''}
                 onChange={(e) => setPolicyCoverage(Number(e.target.value))}
                 disabled={loading}
               >
                 <option value="">Deprem Sigortası Tutarı Seçiniz</option>
-                <option value="105">Yarı Kapsamlı</option>
-                <option value="106">Tam Kapsamlı</option>
+                <option value="103">Yarı Kapsamlı</option>
+                <option value="104">Tam Kapsamlı</option>
               </Form.Select>
             </Form.Group>
           </Col>
@@ -507,9 +512,9 @@ const CreateEarthquakePolicy = () => {
                       >
                         <div className="accordion-body">
                           <p><strong>Apartman Numarası:</strong> {houseWithCustomer?.building?.apartmentNumber}</p>
-                          <p><strong>Mahalle:</strong> {houseWithCustomer?.building?.address[0]?.neighborhood}</p>
-                          <p><strong>İlçe:</strong> {houseWithCustomer?.building?.address[0]?.district}</p>
-                          <p><strong>İl:</strong> {houseWithCustomer?.building?.address[0]?.city}</p>
+                          <p><strong>Mahalle:</strong> {houseWithCustomer?.building?.address?.neighborhood}</p>
+                          <p><strong>İlçe:</strong> {houseWithCustomer?.building?.address?.district}</p>
+                          <p><strong>İl:</strong> {houseWithCustomer?.building?.address?.city}</p>
                         </div>
                       </div>
                     </div>
@@ -535,10 +540,9 @@ const CreateEarthquakePolicy = () => {
                         data-bs-parent="#accordionFlushExample"
                       >
                         <div className="accordion-body">
-                          <p><strong>Poliçe Açıklaması:</strong> {EarthquakePolicy?.coverage?.coverageDescription}</p>
-                          <p><strong>Başlangıç Tarihi:</strong> {EarthquakePolicy?.policyStartDate ? EarthquakePolicy.policyStartDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
-                          <p><strong>Bitiş Tarihi:</strong> {EarthquakePolicy?.policyEndDate ? EarthquakePolicy.policyEndDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
-                          <p><strong>Poliçe Fiyat:</strong> {EarthquakePolicy?.policyAmount}</p>
+                          <p><strong>Başlangıç Tarihi:</strong> {policyStartDate ? policyStartDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
+                          <p><strong>Bitiş Tarihi:</strong> {policyEndDate ? policyEndDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
+                          <p><strong>Poliçe Fiyatı:</strong> {houseData.Amount}</p>
                         </div>
                       </div>
                     </div>

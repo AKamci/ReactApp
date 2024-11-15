@@ -3,7 +3,6 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
 import Endpoints from '../../../Helpers/Api-Endpoints';
 import { HouseDto } from "../../../dto/HouseDto";
-import { BuildingDto } from "../../../dto/BuildingDto";
 
 export interface HouseState {
     data: HouseDto;
@@ -21,20 +20,26 @@ const initialState = {
     errorMessage: null    
 } as HouseState;
 
-export const getHouseWithCustomer = createAsyncThunk<HouseDto, { building: BuildingDto }, { state: { house: HouseState } }>(
-    'house/getHouseWithCustomer',
-    async ({ building }, { rejectWithValue }) => {
+export const getHouseWithCustomer = createAsyncThunk<HouseDto, { number: number, apartmentNumber: number, city: string, district: string, neighborhood: string}, { state: { getHouseWithCustomer: HouseState } }>(
+    'house/WCustomer',
+    async ({ number, apartmentNumber, city, district, neighborhood }, { rejectWithValue }) => {
         try {
-            console.log("Gönderilen DTO:", building);
+            console.log("Slice İçinden: > > Gönderilen DTO:", number, apartmentNumber, city, district, neighborhood);
             const response = await axios.get<HouseDto>(Endpoints.House.GetWithCustomer, {
-                params: { building }
+                params: { 
+                    number: number,
+                    apartmentNumber: apartmentNumber, 
+                    city: city, 
+                    district: district, 
+                    neighborhood: neighborhood 
+                }
             });
             console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {
             const status = error.response ? error.response.status : 500; 
-            const message = error.response?.data?.message || "An error occurred";
-            console.error("Error status:", status, "Message:", message);
+            const message = error.response?.data?.message || "Bir hata oluştu";
+            console.error("Hata durumu:", status, "Mesaj:", message);
             return rejectWithValue({ status, message });
         }
     }
@@ -43,6 +48,11 @@ export const getHouseWithCustomer = createAsyncThunk<HouseDto, { building: Build
 const getHouseWithCustomerSlice = createSlice({
     name: 'getHouseWithCustomer',
     initialState,
+    reducers: {
+        setActiveRequest: (state, action) => {
+            state.activeRequest = action.payload;
+        },
+    },
     extraReducers: (builder) => {
         builder.addCase(getHouseWithCustomer.pending, (state) => {
             state.state = ApiState.Pending;
@@ -63,14 +73,9 @@ const getHouseWithCustomerSlice = createSlice({
                 state.errorMessage = (action.payload as any).message;   
             } else {
                 state.responseStatus = null; 
-                state.errorMessage = "Unknown error occurred"; 
+                state.errorMessage = "Bilinmeyen bir hata oluştu"; 
             }
         });
-    },
-    reducers: {
-        setActiveRequest: (state, action) => {
-            state.activeRequest = action.payload;
-        },
     },
 });
 

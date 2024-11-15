@@ -8,6 +8,6 @@ export interface BuildingDto {
     constructionStyle: number;
     constructionYear: number;
     totalFloors: number;
-    address: Array<AddressDto>
+    address: AddressDto
     houses: Array<HouseDto>;
 }
