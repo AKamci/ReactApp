@@ -21,7 +21,7 @@ const EarthquakeLeftNav = () => {
 					className={({ isActive }) =>
 						`list-group-item list-group-item-action ${isActive ? 'active' : ''}`
 					}>
-					MÜŞTERİ OLUŞTUR
+					DEPREM POLİÇESİ OLUŞTUR
 				</NavLink>
 
 				<NavLink
@@ -30,7 +30,7 @@ const EarthquakeLeftNav = () => {
 					className={({ isActive }) =>
 						`list-group-item list-group-item-action ${isActive ? 'active' : ''}`
 					}>
-					MÜŞTERİ BUL
+					DEPREM POLİÇESİ BUL
 				</NavLink>
 
 				<NavLink
@@ -39,7 +39,7 @@ const EarthquakeLeftNav = () => {
 					className={({ isActive }) =>
 						`list-group-item list-group-item-action ${isActive  ? 'active' : ''}`
 					}>
-					TÜM MÜŞTERİLERİ LİSTELE
+					DEPREM POLİÇESİ LİSTELE
 				</NavLink>
 			</div>
 		</>

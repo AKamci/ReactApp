@@ -42,7 +42,7 @@ const Routers = () => {
 
 				<Route path='/earthQuake' element={<EarthquakePage />} />
 				<Route path='/earthQuake/createEarthQuakePolicy' element={<CreateEarthquakePolicyPage />} />
-				<Route path='/earthQuake/updateEarthQuakePolicy' element={<UpdateEarthquakePolicyPage />} />
+				<Route path='/earthquakePolicy/updateEarthquakePolicy' element={<UpdateEarthquakePolicyPage />} />
 				<Route path='/earthQuake/getEarthQuakePolicy' element={<GetEarthquakePolicyPage />} />
 				<Route path='/earthQuake/list' element={<EarthquakePolicyListPage />} />
 

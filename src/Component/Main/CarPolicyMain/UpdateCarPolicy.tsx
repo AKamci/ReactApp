@@ -1,224 +1,314 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Container, Table, Button, Form, Row, Col } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/store';
-import { getAllWeight } from '../../../infrastructure/Store/Slices/WeightSlices/GetListWeight-Slice';
-import { WeightDto } from '../../../infrastructure/dto/WeightDto';
-import WeightsType from '../../../infrastructure/Enums/WeightsType';
-import { updateListWeight, resetResponseStatus } from '../../../infrastructure/Store/Slices/WeightSlices/UpdateListWeight-Slice';
+import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useRef, useState, useEffect } from 'react';
+import { ConfirmPopup } from 'primereact/confirmpopup';
+import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { deleteWeight } from '../../../infrastructure/Store/Slices/WeightSlices/DeleteWeight-Slice';
-import { Chart } from 'primereact/chart';
+import { Calendar } from 'primereact/calendar';
+import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/store';
+import { updateCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/UpdateCarPolicy-Slice';
+import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai';
+import { getCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/GetCarPolicy-Slice';
+import { getPlateWithCustomer } from '../../../infrastructure/Store/Slices/LicensePlateSlices/GetPlateWithCustomer-Slice';
+import { acceptCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/AcceptCarPolicy';
+import { rejectCarPolicy } from '../../../infrastructure/Store/Slices/CarPolicySlices/RejectCarPolicy';
 
-interface EditableWeightDto extends WeightDto {
-  isNew?: boolean;
-  isUpdated?: boolean;
-}
-
-const WeightList: React.FC = () => {
-  const [chartData, setChartData] = useState({});
-  const [chartOptions, setChartOptions] = useState({});
-  const toastRef = useRef<Toast>(null);
-
-  useEffect(() => {
-    const documentStyle = getComputedStyle(document.documentElement);
-    const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
-    const data = {
-      labels: ['Araç1', 'Araç2', 'Araç3', 'Araç4', 'Araç5', 'Araç6', 'Araç7'],
-      datasets: [
-        { label: 'Kasko', data: [5, 59, 80, 81, 56, 55, 40], borderColor: documentStyle.getPropertyValue('--blue-500') },
-        { label: 'Trafik', data: [28, 48, 40, 19, 86, 27, 90], borderColor: documentStyle.getPropertyValue('--pink-500') }
-      ]
-    };
-    setChartData(data);
-    setChartOptions({
-      scales: { x: { ticks: { color: textColorSecondary } }, y: { ticks: { color: textColorSecondary } } }
-    });
-  }, []);
-
+const UpdateCarPolicy = () => {
   const dispatch = useAppDispatch();
-  const weights = useAppSelector((state) => state.getListWeight.data);
-  const [data, setData] = useState<EditableWeightDto[]>([]);
+  const carPolicy = useAppSelector((state) => state.updateCarPolicy.data);
+  const carPolicyEntity = useAppSelector((state) => state.getCarPolicy.data);
+  const responseStatus = useAppSelector((state) => state.getCarPolicy.responseStatus);
+
+  const carPolicyInformation = useAppSelector((state) => state.getPlateWithCustomer.data);
+
+
+
+  const location = useLocation();
+
+  const carPolicyData = location.state?.carPolicy.carPolicy;
+
+  const [visible, setVisible] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
+  const toast = useRef<Toast>(null);
+  const buttonEl = useRef(null);
+  const [policyDescription, setPolicyDescription] = useState('');
+  const [policyType, setPolicyType] = useState('');
+  const [policyStatus, setPolicyStatus] = useState(false);
+  const [policyStartDate, setPolicyStartDate] = useState<Date | null>(null);
+  const [policyEndDate, setPolicyEndDate] = useState<Date | null>(null);
+  const [policyAmount, setPolicyAmount] = useState<number | null>(null);
+  const [policyId, setPolicyId] = useState<number | null>(null);
+  const[policyOfferDate, setPolicyOfferDate] = useState<Date | null>(null);
+  const [plate, setLicensePlateNumber] = useState('');
+
+
+
+  const [shouldOpenModal, setShouldOpenModal] = useState<boolean>(false);
+
+
+  const navigate = useNavigate();
+
+  const [descriptionValid, setDescriptionValid] = useState<boolean>(false);
 
   useEffect(() => {
-    dispatch(getAllWeight());
-  }, [dispatch]);
-
+    if (carPolicyData) {
+      console.log(carPolicyData)
+      setLicensePlateNumber(carPolicyData.licensePlateNumber || '');
+      setPolicyOfferDate(carPolicyData.policyOfferDate ? new Date(carPolicyData.policyOfferDate) : null);
+      setPolicyOfferDate(carPolicyData.policyStartDate ? new Date(carPolicyData.policyStartDate) : null);
+      setPolicyDescription(carPolicyData.coverage ? carPolicyData.coverage.coverageDescription : '');
+      setPolicyType(carPolicyData.coverage ? carPolicyData?.coverage.coverageType : '');
+      setPolicyStatus(carPolicyData.policyStatus || false);
+      setPolicyStartDate(carPolicyData.policyStartDate ? new Date(carPolicyData.policyStartDate) : null);
+      setPolicyEndDate(carPolicyData.policyEndDate ? new Date(carPolicyData.policyEndDate) : null);
+      setPolicyAmount(carPolicyData.policyAmount || null);
+      setPolicyId(carPolicyData.policyId || null);
+    }
+  }, [carPolicyData]); 
+  
   useEffect(() => {
-    if (weights) {
-      const initialData = weights.map(item => ({ ...item, isNew: false, isUpdated: false }));
-      setData(initialData);
-    }
-  }, [weights]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, id: number) => {
-    const { name, value } = e.target;
-    setData(prevData =>
-      prevData.map(item =>
-        item.id === id ? { ...item, [name]: value, isUpdated: !item.isNew } : item
-      )
-    );
-  };
-
-  useEffect(() => {   
-    return () => {
-        dispatch(resetResponseStatus()); 
-    };
-  }, [dispatch]);
-
-  const validateData = () => {
-    let isValid = true;
-
-    data.forEach(item => {
-      if (!item.key) {
-        toastRef.current?.show({ severity: 'error', summary: 'Hata', detail: `Key alanı boş bırakılamaz. (ID: ${item.id})`, life: 2000 });
-        isValid = false;
+    if (policyOfferDate) {
+      console.log("Trigger Open");
+      const currentDate = new Date();
+      const differenceInTime = currentDate.getTime() - policyOfferDate.getTime();
+      const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+  
+      if (differenceInDays > 30) {
+        console.log("Fark 30");
+        console.log(plate, policyType, policyStartDate, policyEndDate);
+  
+        dispatch(
+          getPlateWithCustomer({
+            plate,
+            policyType,
+            policyStartDate: policyStartDate ? policyStartDate.toISOString().split("T")[0] : null,
+            policyEndDate: policyEndDate ? policyEndDate.toISOString().split("T")[0] : null,
+          })
+        )
+          .unwrap()
+          .then((result) => {
+            if (result.amount !== policyAmount) {
+              console.log("Fiyat Güncellendi");
+              setPolicyAmount(result.amount);
+            }
+          });
+  
+        setShouldOpenModal(true);
       }
-      if (item.minValue > item.maxValue) {
-        toastRef.current?.show({ severity: 'error', summary: 'Hata', detail: `Min değer, Max değerden büyük olamaz. (ID: ${item.id})`, life: 2000 });
-        isValid = false;
-      }
-    });
+    }
+  }, [policyOfferDate, dispatch]);
 
-    return isValid;
+  const validateForm = () => {
+    if (!policyDescription || !policyType || !policyStartDate || !policyEndDate || policyAmount === null) {
+      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Tüm alanlar doldurulmalıdır.', life: 3000 });
+      return false;
+    }
+
+    if (
+      policyDescription === carPolicyData.policyDescription &&
+      policyType === carPolicyData.policyType &&
+      policyStatus === carPolicyData.policyStatus &&
+      policyAmount === carPolicyData.policyAmount &&
+      policyStartDate?.toISOString().split('T')[0] === new Date(carPolicyData.policyStartDate).toISOString().split('T')[0] &&
+      policyEndDate?.toISOString().split('T')[0] === new Date(carPolicyData.policyEndDate).toISOString().split('T')[0]
+    ) {
+      toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Hiçbir değişiklik yapılmadı.', life: 3000 });
+      return false;
+    }
+
+    if (!descriptionValid) {
+      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Geçersiz kullanım.', life: 3000 });
+      return false;
+    }
+
+    return true;
+  };
+  
+  const accept = async () => {
+   
+
+    await dispatch(acceptCarPolicy({ policyId }));
+
+    setLoading(true);
+    await toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Poliçe Başarıyla Güncellendi.', life: 2000 });
+
+    setTimeout(() => {
+      setLoading(false);
+      navigate('/carPolicy/list');
+    }, 2000);
   };
 
-  const handleSave = async () => {
-    if (!validateData()) return;
-
-    const itemsToSave: WeightDto[] = data.map(item => ({ ...item }));
-    const response = await dispatch(updateListWeight({ dto: itemsToSave }));
-      
-    if (response.meta.requestStatus === 'fulfilled') {
-      toastRef.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Parametre Güncellendi', life: 2000 });
-      setData(prevData => prevData.map(item => ({ ...item, isNew: false, isUpdated: false })));
-      updateChart();
-    } else {
-      toastRef.current?.show({ severity: 'error', summary: 'Hata', detail: 'Sunucuya ulaşılamadı.', life: 3000 });
+  const handleConfirm = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      setVisible(true);
     }
   };
 
-  const handleDelete = async (id: number, key: string) => {
-    setData(prevData => prevData.filter(item => item.id !== id));
-    const response = await dispatch(deleteWeight({ key: key }));
-    if (response.meta.requestStatus === 'fulfilled') {
-      toastRef.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Parametre Silindi', life: 2000 });
-    } else {
-      toastRef.current?.show({ severity: 'error', summary: 'Hata', detail: 'Sunucuya ulaşılamadı.', life: 3000 });
-    }
+  const validateDescription = (value: string) => {
+    setDescriptionValid(value.length > 0 && value.length <= 500);
+    setPolicyDescription(value);
   };
 
-  const handleAddRow = () => {
-    const newId = data.length ? data[data.length - 1].id + 1 : 1;
-    const newRow: EditableWeightDto = { id: newId, key: '', weight: 0, minValue: 0, maxValue: 0, type: '', isNew: true };
-    setData([...data, newRow]);
+  const getInputStyle = (isValid: boolean | undefined) => {
+    if (isValid === undefined) return {};
+    return { borderColor: isValid ? 'green' : 'red' };
   };
 
-  const updateChart = () => {
-    setChartData({...chartData}); // Refresh chart with updated data
+
+
+
+  const reject = async () => {
+    
+    dispatch(rejectCarPolicy({ policyId }));
+
+    setLoading(true);
+    toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Poliçe Başarıyla Güncellendi.', life: 2000 });
+
+    setTimeout(() => {
+      setLoading(false);
+      navigate('/carPolicy/list');
+    }, 2000);
   };
 
   return (
-    <div>
-      <Container className="mt-5">
-        <Toast ref={toastRef} />
-        <Row className="justify-content-center mb-4">
-          <Col md="auto">
-            <h2>Veri Düzenleme Paneli</h2>
-          </Col>
-        </Row>
-        <Table striped bordered hover responsive className="shadow-sm">
-          <thead className="bg-primary text-white">
-            <tr>
-              <th>Key</th>
-              <th>Weight</th>
-              <th>Min Value</th>
-              <th>Max Value</th>
-              <th>Type</th>
-              <th>İşlemler</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map(item => (
-              <tr key={item.id} className={item.isNew ? 'table-warning' : ''}>
-                <td>
-                  <Form.Control
-                    type="text"
-                    name="key"
-                    value={item.key}
-                    onChange={(e) => handleInputChange(e, item.id)}
-                    className="border-0"
-                    placeholder="Key girin"
-                  />
-                </td>
-                <td>
-                  <Form.Control
-                    type="number"
-                    name="weight"
-                    value={item.weight}
-                    onChange={(e) => handleInputChange(e, item.id)}
-                    className="border-0"
-                    placeholder="Ağırlık girin"
-                  />
-                </td>
-                <td>
-                  <Form.Control
-                    type="number"
-                    name="minValue"
-                    value={item.minValue}
-                    onChange={(e) => handleInputChange(e, item.id)}
-                    className="border-0"
-                    disabled={[WeightsType.POLICY_TYPE, WeightsType.GENDER].includes(item.type as WeightsType)}
-                  />
-                </td>
-                <td>
-                  <Form.Control
-                    type="number"
-                    name="maxValue"
-                    value={item.maxValue}
-                    onChange={(e) => handleInputChange(e, item.id)}
-                    className="border-0"
-                    disabled={[WeightsType.POLICY_TYPE, WeightsType.GENDER].includes(item.type as WeightsType)}
-                  />
-                </td>
-                <td>
-                  <Form.Select
-                    name="type"
-                    value={item.type}
-                    onChange={(e) => handleInputChange(e, item.id)}
-                    className="border-0"
-                  >
-                    <option value={WeightsType.CUSTOMER_AGE}>CUSTOMER AGE</option>
-                    <option value={WeightsType.GENDER}>GENDER</option>
-                    <option value={WeightsType.CUSTOMER_GRADE}>CUSTOMER GRADE</option>
-                    <option value={WeightsType.ENGINE}>ENGINE</option>
-                    <option value={WeightsType.CAR_PRICE}>CAR PRICE</option>
-                    <option value={WeightsType.POLICY_TYPE}>POLICY TYPE</option>
-                    <option value={WeightsType.CONSTANT}>CONSTANT</option>
-                    <option value={WeightsType.CAR_AGE}>CAR AGE</option>
-                  </Form.Select>
-                </td>
-                <td>
-                  {item.type !== WeightsType.POLICY_TYPE && item.type !== WeightsType.GENDER && (
-                    <Button variant="danger" size="sm" onClick={() => handleDelete(item.id, item.key)}>Sil</Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-        <div className="text-end mt-3">
-          <Button variant="primary" onClick={handleAddRow} className="me-2">Satır Ekle</Button>
-          <Button variant="success" onClick={handleSave}>Kaydet</Button>
+    
+  <div>
+
+  {shouldOpenModal && (
+  <div
+      className="modal fade show"
+      style={{ display: 'block' }}
+      id="staticBackdrop"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabIndex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+     >
+
+    <div className="modal-dialog">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title" id="staticBackdropLabel">Fiyat Güncellemesi.</h5>
+          <button type="button" className="btn-close"  data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <Row className="mt-5">
-          <Col>
-            <Chart type="line" data={chartData} options={chartOptions} />
-          </Col>
-        </Row>
-      </Container>
+        <div className="modal-body">
+          Verilen fiyat teklifinin süresi dolduğu için yeni teklifi alınmıştır.
+          <strong></strong>
+        </div>
+        <div className="modal-footer">
+          <button type="button" className="btn btn-secondary" onClick={() => setShouldOpenModal(false)} data-bs-dismiss="modal">Anladım</button>        
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+<Toast ref={toast} />
+    <form className="row g-3" onSubmit={(e) => e.preventDefault()}>
+      <div className="col-md-2">
+        <label htmlFor="inputPolicyId" className="form-label">Poliçe No</label>
+        <input
+          type="text"
+          className="form-control"
+          id="inputPolicyName"
+          value={policyId}
+          disabled
+        />
+      </div>
+
+      <div className="col-md-6">
+        <label htmlFor="inputPolicyDescription" className="form-label">Poliçe Açıklaması</label>
+        <textarea
+          className="form-control"
+          id="inputPolicyDescription"
+          value={policyDescription}
+          disabled
+          onChange={(e) => validateDescription(e.target.value)}
+        />
+      </div>
+
+
+      <div className="col-md-2">
+        <label htmlFor="inputPolicyType" className="form-label">Poliçe Türü</label>
+        <input
+          type="text"
+          className="form-control"
+          id="inputPolicyName"
+          value={policyType}          
+          disabled
+        />
+      </div>
+
+      <div className="col-md-3">
+        <label htmlFor="policyStartDate" className="form-label">Başlangıç Tarihi</label>
+        <Calendar
+          value={policyStartDate}
+          onChange={(e) => setPolicyStartDate(e.value as Date)}
+          showIcon
+          disabled
+        />
+      </div>
+
+      <div className="col-md-3">
+        <label htmlFor="policyEndDate" className="form-label">Bitiş Tarihi</label>
+        <Calendar
+          value={policyEndDate}
+          onChange={(e) => setPolicyEndDate(e.value as Date)}
+          showIcon
+          disabled
+        />
+      </div>
+
+      <div className="col-md-2">
+        <label htmlFor="policyAmount" className="form-label">Tutar</label>
+        <input
+          type="number"
+          className="form-control"
+          id="policyAmount"
+          value={policyAmount}
+          disabled
+          onChange={(e) => setPolicyAmount(Number(e.target.value))}
+        />
+      </div>
+
+      <div className="col-12">
+  <ConfirmPopup
+    target={buttonEl.current || undefined}
+    visible={visible}
+    onHide={() => setVisible(false)}
+    message="Poliçeyi güncellemek istediğinize emin misiniz?"
+    icon="pi pi-exclamation-triangle"
+    accept={accept}
+    reject={reject}
+    acceptLabel="Evet"
+    rejectLabel="Hayır"
+  />
+
+  <Button
+    ref={buttonEl}
+    label="Kabul Et"
+    type="button"
+    className="p-button-success"
+    icon="pi pi-check"
+    onClick={accept}
+    style={{ marginRight: '10px' }} 
+  />
+
+  <Button
+    ref={buttonEl}
+    label="Reddet"
+    type="button"
+    className="p-button-danger"
+    icon="pi pi-times"
+    onClick={reject}
+  />
+</div>    
+    </form>
+
     </div>
   );
+
 };
 
-export default WeightList;
+export default UpdateCarPolicy;

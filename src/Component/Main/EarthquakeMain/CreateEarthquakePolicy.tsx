@@ -12,6 +12,7 @@ const CreateEarthquakePolicy = () => {
   const dispatch = useAppDispatch();
   const EarthquakePolicy = useAppSelector((state) => state.createEarthquake.data);
   const responseStatus = useAppSelector((state) => state.createEarthquake.responseStatus);
+  const resetResponseStatus = useAppSelector((state) => state.createEarthquake.responseStatus);
   
   const houseWithCustomer = useAppSelector((state) => state.getHouseWithCustomer.data);
   
@@ -81,6 +82,12 @@ const CreateEarthquakePolicy = () => {
   };
 
   useEffect(() => {
+    if (houseWithCustomer?.Amount) {
+      setPolicyAmount(houseWithCustomer.Amount);
+    }
+  }, [houseWithCustomer]);
+
+  useEffect(() => {
     if (policyStartDate) {
       const endDate = new Date(policyStartDate);
       endDate.setFullYear(endDate.getFullYear() + 1);
@@ -108,7 +115,7 @@ const CreateEarthquakePolicy = () => {
     console.log(shouldOpenModal);
     console.log(policyStartDate);
     console.log(policyEndDate);
-
+  
     try {
       const requestDto = {
         number: selectedDaire,
@@ -117,54 +124,48 @@ const CreateEarthquakePolicy = () => {
         district: selectedIlce,
         neighborhood: selectedMahalle,
       };
-      
+  
       console.log("Gönderilen DTO:", requestDto);
-      
-      const response = await dispatch(getHouseWithCustomer({ 
-        number: Number(requestDto.number), 
-        apartmentNumber: Number(requestDto.apartmentNumber), 
-        city: requestDto.city, 
-        district: requestDto.district, 
-        neighborhood: requestDto.neighborhood 
+  
+      const response = await dispatch(getHouseWithCustomer({
+        number: Number(requestDto.number),
+        apartmentNumber: Number(requestDto.apartmentNumber),
+        city: requestDto.city,
+        district: requestDto.district,
+        neighborhood: requestDto.neighborhood
       })).unwrap();
-
+  
       console.log("API'den gelen yanıt:", response);
-      
+  
       if (response) {
-        // API'den gelen veriyi doğrudan kullanıyoruz
-        setHouseData(response);
-
-        if(!houseData.Amount)
-        {
+        if (!response.Amount) {
           console.log("Veri boş geldi, lütfen kontrol ediniz");
-          console.log("Gelen veri:", houseData);
+          console.log("Gelen veri:", response);
           throw new Error("Ev bilgileri alınamadı");
-        }
-        else
-        {
+        } else {
           console.log("Veri alındı, şimdi başka işlemler yapabilirsiniz.");
-          console.log(houseData);
-        }
-
-        const dto = {
-          houseId: houseData.id,
-          coverage: policyCoverage,
-          policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
-          policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null, 
-          policyOfferDate: new Date().toISOString().split('T')[0],
-          tckn: houseData.customer?.tckn,
-          policyAmount: houseData.Amount,
-        };
-
-        console.log('DTO:', dto);
-
-        const policyResponse = await dispatch(createEarthquakePolicy({
-          dto: dto
-        })).unwrap();
-
-        if (policyResponse) {
-          toast.current?.show({ severity: 'success', summary: 'Başarılı', detail: 'Deprem poliçesi başarıyla oluşturuldu.', life: 3000 });
-          setShouldOpenModal(true);
+          console.log(response);
+  
+          const dto = {
+            houseId: response.id,
+            coverageCode: policyCoverage,
+            policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
+            policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null,
+            policyOfferDate: new Date().toISOString().split('T')[0],
+            tckn: response.customer?.tckn,
+            policyAmount: response.Amount,
+          };
+  
+          console.log('DTO:', dto);
+  
+          const policyResponse = await dispatch(createEarthquakePolicy({
+            dto: dto
+          })).unwrap();
+  
+          if (policyResponse) {
+            toast.current?.show({ severity: 'success', summary: 'Başarılı', detail: 'Deprem poliçesi başarıyla oluşturuldu.', life: 3000 });
+            setShouldOpenModal(true);
+          }
         }
       } else {
         throw new Error("API'den veri alınamadı");
@@ -542,7 +543,7 @@ const CreateEarthquakePolicy = () => {
                         <div className="accordion-body">
                           <p><strong>Başlangıç Tarihi:</strong> {policyStartDate ? policyStartDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
                           <p><strong>Bitiş Tarihi:</strong> {policyEndDate ? policyEndDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
-                          <p><strong>Poliçe Fiyatı:</strong> {houseData.Amount}</p>
+                          <p><strong>Poliçe Fiyatı:</strong> {policyAmount}</p>
                         </div>
                       </div>
                     </div>

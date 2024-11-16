@@ -22,24 +22,26 @@ const initialState = {
 } as CarPolicyState;
 
 export const acceptCarPolicy = createAsyncThunk<CarPolicyDto, { policyId: number }, { state: CarPolicyState }>(
-    'acceptCarPolicy',
+    'carPolicy/accepted',
     async ({ policyId }, { rejectWithValue }) => {
-        console.log("ID : ")
-        console.log(policyId)
+        console.log("ID : ", policyId);
         
         try {
-            const response = await axios.put<CarPolicyDto>(Endpoints.CarPolicy.Accept, {
-                params: {				
-                    policyId: policyId
+            const response = await axios.put<CarPolicyDto>(
+                Endpoints.CarPolicy.Accept,
+                { policyId: policyId },
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
-            });
+            );
             console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {
-            
             const status = error.response ? error.response.status : 500; 
-            const message = error.response?.data?.message || "An error occurred";
-            console.error("Error status:", status, "Message:", message);
+            const message = error.response?.data?.message || "Bir hata oluştu";
+            console.error("Hata durumu:", status, "Mesaj:", message);
             return rejectWithValue({ status, message });
         }
     }
@@ -55,7 +57,7 @@ const acceptCarPolicySlice = createSlice({
             state.errorMessage = null;   
         });
         builder.addCase(acceptCarPolicy.fulfilled, (state, action) => {
-            console.log("Müşteri verisi Redux'a geldi:", action.payload);
+            console.log("Poliçe kabul edildi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  
@@ -68,7 +70,7 @@ const acceptCarPolicySlice = createSlice({
                 state.errorMessage = (action.payload as any).message;   
             } else {
                 state.responseStatus = null; 
-                state.errorMessage = "Unknown error occurred"; 
+                state.errorMessage = "Bilinmeyen bir hata oluştu"; 
             }
         });
     },

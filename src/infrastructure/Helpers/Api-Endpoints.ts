@@ -41,12 +41,19 @@ export default {
 
 	EarthquakePolicy:{
 		CreateEarthquake: `${baseUrl_v1}/earthQuake`,
+		GetEarthquake: `${baseUrl_v1}/earthQuake`,
+		DeleteEarthquake: `${baseUrl_v1}/earthQuake`,
+		UpdateEarthquake: `${baseUrl_v1}/earthQuake`,
+		AcceptEarthquake: `${baseUrl_v1}/earthQuake/accepted`,
+		RejectEarthquake: `${baseUrl_v1}/earthQuake/rejected`,
+		GetAllEarthquake: `${baseUrl_v1}/earthQuake/list`,
+		TotalEarthquakePolicy: `${baseUrl_v1}/earthQuake/totalRecord`,
 
 		
 	},
 	House:{
 		GetWithCustomer: `${baseUrl_v1}/house/WCustomer`,
-		
+
 	},
 
 };

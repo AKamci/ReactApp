@@ -22,24 +22,26 @@ const initialState = {
 } as CarPolicyState;
 
 export const rejectCarPolicy = createAsyncThunk<CarPolicyDto, { policyId: number }, { state: CarPolicyState }>(
-    'rejectCarPolicy',
+    'carPolicy/rejected',
     async ({ policyId }, { rejectWithValue }) => {
-        console.log("ID : ")
-        console.log(policyId)
+        console.log("ID : ", policyId);
         
         try {
-            const response = await axios.put<CarPolicyDto>(Endpoints.CarPolicy.Reject, {
-                params: {				
-                    policyId: policyId
+            const response = await axios.put<CarPolicyDto>(
+                Endpoints.CarPolicy.Reject,
+                { policyId: policyId },
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
-            });
+            );
             console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {
-            
             const status = error.response ? error.response.status : 500; 
-            const message = error.response?.data?.message || "An error occurred";
-            console.error("Error status:", status, "Message:", message);
+            const message = error.response?.data?.message || "Bir hata oluştu";
+            console.error("Hata durumu:", status, "Mesaj:", message);
             return rejectWithValue({ status, message });
         }
     }

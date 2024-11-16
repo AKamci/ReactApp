@@ -28,8 +28,7 @@ const CarPolicyList = () => {
     const [carPlate, setCarPlate] = useState<string>(''); 
     const [policyStatus, setPolicyStatus] = useState<CarPolicyState | null>(null);
     const toast = useRef<Toast>(null);
-    const [filtersCleared, setFiltersCleared] = useState<boolean>(false); // New state to track clearing filters
-
+    const [filtersCleared, setFiltersCleared] = useState<boolean>(false);
 
     useEffect(() => {
         dispatch(totalRecordCarPolicy());
@@ -38,16 +37,15 @@ const CarPolicyList = () => {
             size: rows,
             state: policyStatus,
             tckn: customerTCKN ? customerTCKN : null,
-            coverage: policyTypeFilter !== null ? policyTypeFilter : null, 
+            coverageCode: policyTypeFilter !== null ? policyTypeFilter : null, 
             licensePlateNumber: carPlate ? carPlate : null, 
-            policyStartDate: policyDateStart ? policyDateStart.toISOString().split('T')[0] : null, 
-            policyEndDate: policyDateEnd ? policyDateEnd.toISOString().split('T')[0] : null
+            policyStartDate: policyDateStart ? policyDateStart : null, 
+            policyEndDate: policyDateEnd ? policyDateEnd : null
         }));
         console.log(totalRecord);
         console.log("CAR POLICIES");
         console.log(carPolicies);
     }, [first, rows, filtersCleared]);
-
 
     const validateTCKN = (customerTCKN: string) => {
         const tcknRegex = /^[0-9]{11}$/;
@@ -61,12 +59,12 @@ const CarPolicyList = () => {
 
     const handleApplyFilter = () => {
         if (selectedFilter === 'customerTckn' && !validateTCKN(customerTCKN)) {
-            toast.current.show({ severity: 'error', summary: 'Hata', detail: 'TCKN 11 haneli ve sadece rakamlardan oluşmalıdır!', life: 3000 });
+            toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'TCKN 11 haneli ve sadece rakamlardan oluşmalıdır!', life: 3000 });
             return;
         }
         
         if (selectedFilter === 'carPlate' && !validateCarPlate(carPlate)) {
-            toast.current.show({ severity: 'error', summary: 'Hata', detail: 'Araç plakası geçerli bir formatta olmalıdır!', life: 3000 });
+            toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Araç plakası geçerli bir formatta olmalıdır!', life: 3000 });
             return;
         }
     
@@ -87,10 +85,8 @@ const CarPolicyList = () => {
         if (policyDateStart && policyDateEnd) filters.push(`Tarih Aralığı: ${policyDateStart} - ${policyDateEnd}`);
         setActiveFilters(filters);
 
-
         handleFilterChange();
     };
-
 
     const onPageChange = (event: PaginatorPageChangeEvent) => {
         setFirst(event.first);
@@ -105,7 +101,7 @@ const CarPolicyList = () => {
             size: rows, 
             state: policyStatus,
             tckn: customerTCKN,
-            coverage: policyTypeFilter, 
+            coverageCode: policyTypeFilter, 
             licensePlateNumber: carPlate, 
             policyStartDate: policyDateStart, 
             policyEndDate: policyDateEnd,
@@ -126,15 +122,15 @@ const CarPolicyList = () => {
         setCustomerTCKN('');
         setPolicyStatus(null);
         setActiveFilters([]);
+        setSelectedFilter('');
         
         await dispatch(getAllCarPolicy({ page: 0, size: rows }));
+        setFiltersCleared(prev => !prev);
     };
 
     const handleFilterSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedFilter(e.target.value);
     };
-
-
 
     return (
         <div className="">
@@ -163,7 +159,7 @@ const CarPolicyList = () => {
                     {selectedFilter === 'policyStatus' && (
                     <select
                         value={policyStatus || ''}
-                        onChange={(e) => setPolicyStatus(e.target.value)}
+                        onChange={(e) => setPolicyStatus(e.target.value as CarPolicyState)}
                         className="form-control mb-3"
                     >
                         <option value=''>Poliçe Durumunu Seçin</option>
@@ -236,7 +232,6 @@ const CarPolicyList = () => {
                         <thead>
                             <tr>
                                 <th scope="col">Poliçe No</th>
-                                <th scope="col">Açıklama</th>
                                 <th scope="col">Tür</th>
                                 <th scope="col">Durum</th>
                                 <th scope="col">Tutar</th>
@@ -251,9 +246,8 @@ const CarPolicyList = () => {
                                 carPolicies.map((carPolicy) => (
                                     <tr key={carPolicy.policyId}>
                                         <td>{carPolicy.policyId}</td>
-                                        <td>{carPolicy.policyDescription}</td>
                                         <td>
-                                        {carPolicy.coverage === 101 ? 'Trafik' : carPolicy.coverage === 102 ? 'Kasko' : ''}
+                                        <td>{carPolicy.coverage ? carPolicy.coverage.coverageType : ''}</td>
                                         </td>
                                         <td>
                                         {carPolicy.tckn === undefined 
@@ -269,7 +263,7 @@ const CarPolicyList = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="10" className="text-center">Veri Bulunamadı</td>
+                                    <td colSpan={10} className="text-center">Veri Bulunamadı</td>
                                 </tr>
                             )}
                         </tbody>

@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Calendar } from 'primereact/calendar';
 import { ConfirmPopup } from 'primereact/confirmpopup';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/store';
-import { createCustomer } from '../../../infrastructure/Store/Slices/CustomerSlices/CreateCustomer-Slice';
+import { createCustomer, resetResponseStatus } from '../../../infrastructure/Store/Slices/CustomerSlices/CreateCustomer-Slice';
 import ApiState from '../../../infrastructure/Enums/ApiState';
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai';
 
@@ -40,6 +40,27 @@ const CreateCustomer = () => {
   const today = new Date();
   const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
   const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+
+  useEffect(() => {
+    if (responseStatus === 409) {
+      toast.current?.show({ severity: 'error', summary: 'Uyarı', detail: 'Girilen TCKN zaten mevcuttur.', life: 2000 });
+      dispatch(resetResponseStatus());
+    } else if (responseStatus === 201) {
+      toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Müşteri Başarıyla Oluşturuldu.', life: 2000 });
+      setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+        navigate('/customer/customerList');
+      }, 2000);
+      dispatch(resetResponseStatus());
+    } else if (responseStatus === 400) {
+      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Geçersiz veri girişi.', life: 2000 });
+      dispatch(resetResponseStatus());
+    } else if (responseStatus === 500) {
+      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Sunucu hatası oluştu.', life: 2000 });
+      dispatch(resetResponseStatus());
+    }
+  }, [responseStatus, dispatch, navigate]);
 
   const validateTckn = (value: string) => {
     const numericValue = value.replace(/\D/g, '');
@@ -103,7 +124,7 @@ const CreateCustomer = () => {
       gender: gender,
     };
 
-    dispatch(createCustomer({
+    const result = await dispatch(createCustomer({
       dto: {
         tckn: tckn,
         name: name,
@@ -115,16 +136,13 @@ const CreateCustomer = () => {
       }
     }));
 
-    if (responseStatus === 409) {
-      toast.current?.show({ severity: 'error', summary: 'Uyarı', detail: 'Girilen TCKN zaten mevcuttur.', life: 2000 });
-    } else {
-      setLoading(true);
-      await toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Müşteri Başarıyla Oluşturuldu.', life: 2000 });
-
+    if (createCustomer.fulfilled.match(result)) {
+      toast.current?.show({ severity: 'success', summary: 'Başarılı', detail: 'Müşteri başarıyla oluşturuldu.', life: 3000 });
       setTimeout(() => {
-        setLoading(false);
         navigate('/customer/customerList');
-      }, 2000);
+      }, 3000);
+    } else if (createCustomer.rejected.match(result)) {
+      toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Müşteri oluşturulamadı.', life: 3000 });
     }
   };
 

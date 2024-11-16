@@ -3,10 +3,10 @@ import axios from 'axios';
 import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
 import Endpoints from '../../../Helpers/Api-Endpoints';
-import { CarPolicyDto } from "../../../dto/CarPolicyDto";
+import { EarthquakePolicyDto } from "../../../dto/EarthquakePolicyDto";
 
-export interface CarPolicyState {
-    data: Array<CarPolicyDto>;
+export interface EarthquakePolicyState {
+    data: Array<EarthquakePolicyDto>;
     state: ApiState;
     activeRequest: number | null;
     responseStatus: number | null; 
@@ -16,38 +16,46 @@ export interface CarPolicyState {
 const initialState = { 
     state: ApiState.Idle, 
     activeRequest: null, 
-    data: [] as Array<CarPolicyDto>, 
+    data: [] as Array<EarthquakePolicyDto>, 
     responseStatus: null, 
     errorMessage: null    
-} as CarPolicyState;
+} as EarthquakePolicyState;
 
-export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: number, size: number, coverageCode: number,  state: CarPolicyState,  policyAmount: number,  
-    licensePlateNumber: string, tckn: string,  policyStartDate: Date,  policyEndDate: Date}, 
-    { state: CarPolicyState }>(
-    'carPolicy/list',
-    async ({ page, size, 
-        coverageCode, state, policyAmount, licensePlateNumber, 
-        tckn, policyStartDate, policyEndDate
+export const getAllEarthquakePolicy = createAsyncThunk<Array<EarthquakePolicyDto>, { page: number, size: number, policyName: string,
+    policyDescription: string,  coverageCode: string,  state: EarthquakePolicyState,  policyAmount: number,  
+    tckn: string,  policyStartDate: Date,  policyEndDate: Date, number: number, apartmentNumber: number, city: string, district: string, neighborhood: string}, 
+    { state: EarthquakePolicyState }>(
+    'earthquakePolicy/list',
+    async ({ page, size, policyName, policyDescription, 
+        coverageCode    , state, policyAmount,
+        tckn, policyStartDate, policyEndDate, number, apartmentNumber, city, district, neighborhood
     }, { rejectWithValue }) => {
        
         console.log(policyEndDate)
         console.log(policyStartDate)
         try {
-            let query = `${Endpoints.CarPolicy.GetAll}?page=${page}&size=${size}`;
+            let query = `${Endpoints.EarthquakePolicy.GetAllEarthquake}?page=${page}&size=${size}`;
 
+            if (policyName) query += `&policyName=${encodeURIComponent(policyName)}`;
+            if (policyDescription) query += `&policyDescription=${encodeURIComponent(policyDescription)}`;
             if (coverageCode) query += `&coverageCode=${encodeURIComponent(coverageCode)}`;
             if (state !== null && state !== undefined) query += `&state=${state}`;
             if (policyAmount) query += `&policyAmount=${encodeURIComponent(policyAmount)}`;
-            if (licensePlateNumber) query += `&licensePlateNumber=${encodeURIComponent(licensePlateNumber)}`;
             if (tckn) query += `&tckn=${encodeURIComponent(tckn)}`;
             if (policyStartDate) query += `&policyStartDate=${policyStartDate}`;
             if (policyEndDate) query += `&policyEndDate=${policyEndDate}`;
+            if (number) query += `&number=${encodeURIComponent(number)}`;
+            if (apartmentNumber) query += `&apartmentNumber=${encodeURIComponent(apartmentNumber)}`;
+            if (city) query += `&city=${encodeURIComponent(city)}`;
+            if (district) query += `&district=${encodeURIComponent(district)}`;
+            if (neighborhood) query += `&neighborhood=${encodeURIComponent(neighborhood)}`;
+
 
             console.log("Query: ");
             console.log(query);
             console.log(query.length);
 
-            const response = await axios.get<Array<CarPolicyDto>>(query);
+            const response = await axios.get<Array<EarthquakePolicyDto>>(query);
 
             console.log("Status:", response.status);
             return response.data;
@@ -62,23 +70,23 @@ export const getAllCarPolicy = createAsyncThunk<Array<CarPolicyDto>, { page: num
     }
 );
 
-const getAllCarPolicySlice = createSlice({
-    name: 'allCarPolicy',
+const getAllEarthquakePolicySlice = createSlice({
+    name: 'allEarthquakePolicy',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(getAllCarPolicy.pending, (state, action) => {
+        builder.addCase(getAllEarthquakePolicy.pending, (state, action) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   
         });
-        builder.addCase(getAllCarPolicy.fulfilled, (state, action) => {
+        builder.addCase(getAllEarthquakePolicy.fulfilled, (state, action) => {
             console.log("Müşteri verisi Redux'a geldi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  
             state.errorMessage = null;   
         });
-        builder.addCase(getAllCarPolicy.rejected, (state, action) => {
+        builder.addCase(getAllEarthquakePolicy.rejected, (state, action) => {
             state.state = ApiState.Rejected;
             if (action.payload) {
                 state.responseStatus = (action.payload as any).status;  
@@ -96,6 +104,6 @@ const getAllCarPolicySlice = createSlice({
     },
 });
 
-export const { setActiveRequest } = getAllCarPolicySlice.actions;
+export const { setActiveRequest } = getAllEarthquakePolicySlice.actions;
 
-export default getAllCarPolicySlice.reducer;
+export default getAllEarthquakePolicySlice.reducer;

@@ -40,7 +40,7 @@ const GetCarPolicy = () => {
         setLoading(true);  
     
         const response = await dispatch(getCarPolicy({ policyId }));
-    
+        console.log(response, "Response");
         if (response.meta.requestStatus === 'fulfilled') {
             
             
@@ -146,7 +146,6 @@ const GetCarPolicy = () => {
                     <thead>
                         <tr>
                             <th scope="col">Poliçe No</th>
-                            <th scope="col">Açıklama</th>
                             <th scope="col">Tür</th>
                             <th scope="col">Durum</th>
                             <th scope="col">Başlangıç Tarihi</th>
@@ -164,9 +163,8 @@ const GetCarPolicy = () => {
                         {dataToDisplay.map((carPolicy) => (
                             <tr key={`${carPolicy.policyId || 'default'}-${carPolicy.tckn || 'default'}`}>
                                 <td>{carPolicy.tckn === undefined ? '' : carPolicy.policyId}</td>
-                                <td>{carPolicy.policyDescription}</td>
                                 <td>
-                                {carPolicy.policyType === 101 ? 'Kasko' : carPolicy.policyType === 102 ? 'Trafik' : ''}
+                                <td>{carPolicy.coverage ? carPolicy.coverage.coverageType : ''}</td>
                                 </td>
                                 <td>
                                 {carPolicy.tckn === undefined 

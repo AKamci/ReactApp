@@ -34,10 +34,13 @@ import UpdateListWeight from './Slices/WeightSlices/UpdateListWeight-Slice';
 
 import  createEarthquakePolicy  from './Slices/EarthQuakeSlices/CreateEarthquake-Slice';
 import GetHouseWithCustomerSlice from './Slices/HouseSlices/GetHouseWithCustomer-Slice';
-
-
-
-
+import GetEarthquakePolicySlice from './Slices/EarthQuakeSlices/GetEarthquake-Slice';
+import UpdateEarthquakePolicySlice from './Slices/EarthQuakeSlices/UpdateEarthquake-Slice';
+import DeleteEarthquakePolicySlice from './Slices/EarthQuakeSlices/DeleteEarthquake-Slice';
+import TotalRecordOfEarthquakePolicy from './Slices/EarthQuakeSlices/TotalRecordOfEarhquakePolicy';
+import AcceptEarthquakePolicy from './Slices/EarthQuakeSlices/AcceptEarthquakePolicy';
+import RejectEarthquakePolicy from './Slices/EarthQuakeSlices/RejectEarthquakePolicy';
+import GetAllEarthquakePolicySlice from './Slices/EarthQuakeSlices/GetAllEarhquakePolicy-Slice';
 
 const store = configureStore({
 	reducer: {
@@ -83,10 +86,14 @@ const store = configureStore({
 		// EARTHQUAKE 
 
 		createEarthquake: createEarthquakePolicy,
-
+		getEarthquakePolicy: GetEarthquakePolicySlice,
 		getHouseWithCustomer: GetHouseWithCustomerSlice,
-
-		
+		updateEarthquakePolicy: UpdateEarthquakePolicySlice,
+		deleteEarthquakePolicy: DeleteEarthquakePolicySlice,
+		totalRecordEarthquakePolicy: TotalRecordOfEarthquakePolicy,
+		acceptEarthquakePolicy: AcceptEarthquakePolicy,
+		rejectEarthquakePolicy: RejectEarthquakePolicy,
+		allEarthquakePolicy: GetAllEarthquakePolicySlice,
 		
 
 

@@ -53,7 +53,7 @@ const UpdateCustomer = () => {
       toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'TCKN 11 haneli olmalıdır.', life: 3000 });
       return false;
     }
-    if (!name || !phone || !email || !address || !gender || !birthDate) {
+    if (!name || !phone || !email || !address || gender === null || !birthDate) {
       toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Tüm alanlar doldurulmalıdır.', life: 3000 });
       return false;
     }
@@ -119,6 +119,7 @@ const UpdateCustomer = () => {
     const regex = /^[A-Za-zğüşıöçĞÜŞİÖÇ\s]*$/; 
     setNameValid(regex.test(value) && value.length <= 255);
     setName(value);
+    console.log("Validated Name: ", value);
   };
 
   const getInputStyle = (isValid: boolean | undefined) => {
@@ -130,12 +131,14 @@ const UpdateCustomer = () => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
     setEmailValid(regex.test(value));
     setEmail(value);
+    console.log("Validated Email: ", value);
   };
 
   const validatePhone = (value: string) => {
     const regex = /^\d{10}$/; 
     setPhoneValid(regex.test(value));
     setPhone(value);
+    console.log("Validated Phone: ", value);
   };
   const reject = () => {
     toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Müşteri oluşturmak için onay vermelisiniz.', life: 2000 });
@@ -228,8 +231,8 @@ const UpdateCustomer = () => {
           <select 
             className="form-select" 
             id="floatingSelect" 
-            value={gender} 
-            onChange={(e) => setGender(parseInt(e.target.value) || "")}
+            value={gender !== null ? gender.toString() : ""} 
+            onChange={(e) => setGender(parseInt(e.target.value))}
             disabled={loading}
           >
             <option value="">Seçiniz</option>

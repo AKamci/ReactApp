@@ -1,10 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { faCar } from '@fortawesome/free-solid-svg-icons';
+import { faCar, faHeartbeat } from '@fortawesome/free-solid-svg-icons';
 import { faPerson } from '@fortawesome/free-solid-svg-icons';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import { faCalculator } from '@fortawesome/free-solid-svg-icons';
+import { faHouseCrack } from '@fortawesome/free-solid-svg-icons';
+
 
 const Navbar = () => {
   console.log('Navbar is rendered.');
@@ -56,20 +58,20 @@ const Navbar = () => {
             </li>
             <li className='nav-item'>
               <NavLink
-                to='/setWeight'
-                className={({ isActive }) => 
-                  isActive ? 'nav-link active-link' : 'nav-link'
-                }>
-                <FontAwesomeIcon icon={faCalculator} /> Parametre Ayarlama
-              </NavLink>
-            </li>
-            <li className='nav-item'>
-              <NavLink
                 to='/earthQuake'
                 className={({ isActive }) => 
                   isActive ? 'nav-link active-link' : 'nav-link'
                 }>
-                <FontAwesomeIcon icon={faCalculator} /> Deprem Poliçesi
+                <FontAwesomeIcon icon={faHouseCrack} /> Deprem Poliçesi
+              </NavLink>
+            </li>
+            <li className='nav-item'>
+              <NavLink
+                to='/healthPolicy'
+                className={({ isActive }) => 
+                  isActive ? 'nav-link active-link' : 'nav-link'
+                }>
+                <FontAwesomeIcon icon={faHeartbeat} /> Sağlık Poliçesi
               </NavLink>
             </li>
           </ul>
