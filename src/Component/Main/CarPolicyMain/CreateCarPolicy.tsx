@@ -58,14 +58,13 @@ const CreateCarPolicy = () => {
 
   const accept = async () => {
     console.log(shouldOpenModal);
-    setShouldOpenModal(true);
     console.log(policyStartDate);
     console.log(policyEndDate);
 
     try {
       const response = await dispatch(getPlateWithCustomer({
         plate,
-        policyType,
+        coverageCode: policyType,
       })).unwrap()
   
       if (response && response.car) {
@@ -89,16 +88,15 @@ const CreateCarPolicy = () => {
     } catch (error) {
       if (error.status === 404) {
         toast.current?.show({ severity: 'error', summary: 'Uyarı', detail: 'Plaka bulunamadı.', life: 3000 });
-        setShouldOpenModal(false); 
       } else {
         toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Bir hata oluştu.', life: 3000 });
-        setShouldOpenModal(false);
       }
+      return;
     }
     //Alınan  veri ile poliçenin yaratılması.
-    await dispatch(createCarPolicy({
+    const result = await dispatch(createCarPolicy({
       dto: {
-        policyType,
+        coverageCode: policyType,
         policyStartDate: policyStartDate ? policyStartDate.toISOString().split('T')[0] : null,
         policyEndDate: policyEndDate ? policyEndDate.toISOString().split('T')[0] : null,
         tckn: carPolicyInformation.customer?.tckn,
@@ -107,6 +105,10 @@ const CreateCarPolicy = () => {
         policyOfferDate: new Date().toISOString().split('T')[0],
       }
     }));
+
+    if (createCarPolicy.fulfilled.match(result)) {
+      setShouldOpenModal(true);
+    }
   };
 
   const handleConfirm = (e: React.MouseEvent) => {
@@ -127,7 +129,6 @@ const CreateCarPolicy = () => {
   useEffect(() => {
     if (responseStatus === 200 || responseStatus === 201) {
       toast.current?.show({ severity: 'success', summary: 'Başarılı', detail: 'Poliçe başarıyla oluşturuldu.', life: 2000 });
-      setShouldOpenModal(false);
       dispatch(resetResponseStatus()); 
     } else if (responseStatus) {
       toast.current?.show({ severity: 'error', summary: 'Hata', detail: 'Poliçe oluşturulurken bir hata oluştu. Lütfen Tekrar Deneyiniz', life: 2000 });
@@ -154,7 +155,6 @@ const CreateCarPolicy = () => {
   };
 
   const reject = () => {
-    setShouldOpenModal(false)
     toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Poliçe oluşturmak için onay vermelisiniz.', life: 2000 });
   };
 
@@ -276,7 +276,7 @@ const CreateCarPolicy = () => {
                           <div className="accordion-body">
                             <p><strong>Başlangıç Tarihi:</strong> {policyStartDate ? policyStartDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
                             <p><strong>Bitiş Tarihi:</strong> {policyEndDate ? policyEndDate.toLocaleDateString() : 'Belirtilmemiş'}</p>
-                            <p><strong>Poliçe Türü:</strong> {policyType === 100 ? "Kasko" : policyType === 101 ? "Trafik" : "Bilinmeyen"}</p>
+                            <p><strong>Poliçe Türü:</strong> {policyType === 102 ? "Kasko" : policyType === 101 ? "Trafik" : "Bilinmeyen"}</p>
                             <p><strong>Poliçe Fiyatı:</strong> {carPolicyInformation.amount}</p>
                           </div>
                         </div>

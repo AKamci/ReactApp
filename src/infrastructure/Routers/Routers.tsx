@@ -12,13 +12,19 @@ import CarPolicyListPage from '../../Component/Pages/CarPolicyPages/CarPolicyLis
 import GetCarPolicyPage from '../../Component/Pages/CarPolicyPages/GetCarPolicyPage';
 import CreateCarPolicyPage from '../../Component/Pages/CarPolicyPages/CreateCarPolicyPage';
 import UpdateCarPolicyPage from '../../Component/Pages/CarPolicyPages/UpdateCarPolicyPage';
-import WeightsPage from '../../Component/Pages/WeightsPage';
 import { EarthquakePage } from '../../Component/Pages/EarthquakePage';
 import CreateEarthquakePolicyPage from '../../Component/Pages/EarthquakePages/CreateEarthquakePolicyPage';
 import UpdateEarthquakePolicyPage from '../../Component/Pages/EarthquakePages/UpdateEarthquakePolicyPage';
 import GetEarthquakePolicyPage from '../../Component/Pages/EarthquakePages/GetEarthquakePolicyPage';
 import EarthquakePolicyListPage from '../../Component/Pages/EarthquakePages/EarthquakePolicyListPage';
-
+import CarPolicyWeightPage from '../../Component/Pages/CarPolicyPages/CarPolicyWeightPage';
+import HealthPolicyPage from '../../Component/Pages/HealthPolicyPage';
+import HealthPolicyListPage from '../../Component/Pages/HealthPolicyPages/HealthPolicyListPage';
+import CreateHealthPolicyPage from '../../Component/Pages/HealthPolicyPages/CreateHealthPolicyPage';
+import GetHealthPolicyPage from '../../Component/Pages/HealthPolicyPages/GetHealthPolicyPage';
+import UpdateHealthPolicyPage from '../../Component/Pages/HealthPolicyPages/UpdateHealthPolicyPage';
+import HealthPolicyWeightPage from '../../Component/Pages/HealthPolicyPages/HealthPolicyWeightPage';
+import EarthquakePolicyWeightsPage from '../../Component/Pages/EarthquakePages/EarthquakePolicyWeightsPage';
 
 
 
@@ -33,6 +39,7 @@ const Routers = () => {
 				<Route path='/customer/updateCustomer' element={<UpdateCustomerPage />} />
 				<Route path='/customer/customerList' element={<CustomerListPage />} />
 				<Route path='/customer/getCustomer' element={<GetCustomerPage />} />
+
 				<Route path='/carPolicy' element={<CarPolicyPage />} />
 				<Route path='/carPolicy/createCarPolicy' element={<CreateCarPolicyPage />} />
 				<Route path='/carPolicy/getCarPolicy' element={<GetCarPolicyPage />} />
@@ -45,8 +52,16 @@ const Routers = () => {
 				<Route path='/earthquakePolicy/updateEarthquakePolicy' element={<UpdateEarthquakePolicyPage />} />
 				<Route path='/earthQuake/getEarthQuakePolicy' element={<GetEarthquakePolicyPage />} />
 				<Route path='/earthQuake/list' element={<EarthquakePolicyListPage />} />
+				<Route path='/earthQuake/weights' element={<EarthquakePolicyWeightsPage />} />
+				<Route path='/carPolicy/weight' element={<CarPolicyWeightPage />} />
 
-				
+				<Route path='/healthPolicy' element={<HealthPolicyPage />} />
+				<Route path='/healthPolicy/createHealthPolicy' element={<CreateHealthPolicyPage />} />
+				<Route path='/healthPolicy/updateHealthPolicy' element={<UpdateHealthPolicyPage />} />
+				<Route path='/healthPolicy/getHealthPolicy' element={<GetHealthPolicyPage />} />
+				<Route path='/healthPolicy/list' element={<HealthPolicyListPage />} />	
+				<Route path='/healthPolicy/weight' element={<HealthPolicyWeightPage />} />
+
 
 				
 			</Routes>

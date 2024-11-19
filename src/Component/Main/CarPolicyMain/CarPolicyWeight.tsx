@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Container, Table, Button, Form, Row, Col } from 'react-bootstrap';
+import { Container, Table, Button, Form, Row, Col, OverlayTrigger, Tooltip, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAppDispatch, useAppSelector } from '../../../infrastructure/Store/store';
 import { getAllWeight } from '../../../infrastructure/Store/Slices/WeightSlices/GetListWeight-Slice';
@@ -9,46 +9,116 @@ import { updateListWeight, resetResponseStatus } from '../../../infrastructure/S
 import { Toast } from 'primereact/toast';
 import { deleteWeight } from '../../../infrastructure/Store/Slices/WeightSlices/DeleteWeight-Slice';
 import { Chart } from 'primereact/chart';
+import { getPlateWithCustomer } from '../../../infrastructure/Store/Slices/LicensePlateSlices/GetPlateWithCustomer-Slice';
+import DataSamples from '../../../infrastructure/Helpers/WeightData';
 
 interface EditableWeightDto extends WeightDto {
   isNew?: boolean;
   isUpdated?: boolean;
 }
 
-const WeightList: React.FC = () => {
+interface PlateInfo {
+  amount: number;
+  car: {
+    engine: number;
+    id: number;
+    kilometers: number;
+    make: string;
+    model: string;
+    price: number;
+    type: number;
+    year: number;
+  };
+  coverageCode: number;
+  customer: {
+    address: string;
+    birthDay: string;
+    email: string;
+    gender: number;
+    grade: number;
+    id: number;
+    name: string;
+    password: string;
+    phone: string;
+  };
+}
+
+const CarPolicyWeight: React.FC = () => {
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
   const toastRef = useRef<Toast>(null);
+  const dispatch = useAppDispatch();
+  const weights = useAppSelector((state) => state.getListWeight.data);
+  const [data, setData] = useState<EditableWeightDto[]>([]);
+  const plateData = useAppSelector((state) => state.getPlateWithCustomer.data);
+  const [policyAmounts, setPolicyAmounts] = useState<{ [key: string]: number }>({});
+  const [plateInfos, setPlateInfos] = useState<{ [key: string]: PlateInfo }>({});
 
   useEffect(() => {
+    dispatch(getAllWeight());
+    fetchPlateData();
+  }, [dispatch]);
+
+  const fetchPlateData = async () => {
+    const newPolicyAmounts: { [key: string]: number } = {};
+    const newPlateInfos: { [key: string]: PlateInfo } = {};
+    for (const sample of DataSamples) {
+      try {
+        const response = await dispatch(getPlateWithCustomer({
+          plate: sample.plate,
+          coverageCode: sample.coverageCode
+        }));
+        if (response.payload && typeof response.payload === 'object') {
+          const plateInfo = response.payload as PlateInfo;
+          newPolicyAmounts[sample.plate] = plateInfo.amount || 0;
+          newPlateInfos[sample.plate] = plateInfo;
+        }
+      } catch (error) {
+        console.error(`Plaka verisi alınamadı: ${sample.plate}`, error);
+      }
+    }
+    setPolicyAmounts(newPolicyAmounts);
+    setPlateInfos(newPlateInfos);
+    updateChartData(newPolicyAmounts);
+  };
+
+  const updateChartData = (amounts: { [key: string]: number }) => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+    
+    const labels = DataSamples.map(sample => sample.plate);
+    const amountsData = labels.map(plate => amounts[plate] || 0);
+
     const data = {
-      labels: ['Araç1', 'Araç2', 'Araç3', 'Araç4', 'Araç5', 'Araç6', 'Araç7'],
+      labels: labels,
       datasets: [
-        { label: 'Kasko', data: [5, 59, 80, 81, 56, 55, 40], borderColor: documentStyle.getPropertyValue('--blue-500') },
-        { label: 'Trafik', data: [28, 48, 40, 19, 86, 27, 90], borderColor: documentStyle.getPropertyValue('--pink-500') }
+        { 
+          label: 'Poliçe Tutarı', 
+          data: amountsData, 
+          borderColor: documentStyle.getPropertyValue('--blue-500'),
+          tension: 0.4
+        }
       ]
     };
     setChartData(data);
     setChartOptions({
-      scales: { x: { ticks: { color: textColorSecondary } }, y: { ticks: { color: textColorSecondary } } }
+      scales: { 
+        x: { ticks: { color: textColorSecondary } }, 
+        y: { ticks: { color: textColorSecondary } } 
+      },
+      plugins: {
+        legend: {
+          labels: { color: textColorSecondary }
+        }
+      }
     });
-  }, []);
-
-  const dispatch = useAppDispatch();
-  const weights = useAppSelector((state) => state.getListWeight.data);
-  const [data, setData] = useState<EditableWeightDto[]>([]);
-
-  useEffect(() => {
-    dispatch(getAllWeight());
-  }, [dispatch]);
+  };
 
   useEffect(() => {
     if (weights) {
       const initialData = weights
         .map(item => ({ ...item, isNew: false, isUpdated: false }))
-        .sort((a, b) => a.type.localeCompare(b.type)); // `type` değerine göre sıralama
+        .sort((a, b) => a.type.localeCompare(b.type));
       setData(initialData);
     }
   }, [weights]);
@@ -76,21 +146,18 @@ const WeightList: React.FC = () => {
     const updatedData = data.map(item => {
       let itemHasError = false;
   
-      // Boş Alan Kontrolü
-      if (!item.key || item.weight === undefined || item.minValue === undefined || item.maxValue === undefined || !item.type) {
+      if (!item.key.trim() || item.weight === undefined || item.minValue === undefined || item.maxValue === undefined || !item.type) {
         itemHasError = true;
         errorMessage = "Tüm alanları doldurunuz.";
       }
   
-      // Aynı Key İsminin Kontrolü
-      if (keySet.has(item.key)) {
+      if (item.key.trim() && keySet.has(item.key.trim())) {
         itemHasError = true;
-        errorMessage = "Key alanları aynı veya boş olamaz..";
-      } else {
-        keySet.add(item.key);
+        errorMessage = "Key alanları aynı olamaz.";
+      } else if (item.key.trim()) {
+        keySet.add(item.key.trim());
       }
   
-      // Min ve Max Değer Kontrolü (sadece GENDER ve POLICY_TYPE dışındaki türler için)
       if (item.type !== WeightsType.GENDER && item.type !== WeightsType.POLICY_TYPE) {
         if (item.minValue > item.maxValue) {
           console.log(item, "item Error")
@@ -117,7 +184,6 @@ const WeightList: React.FC = () => {
     return isValid;
   };
   
-
   const handleSave = async () => {
     if (!validateData()) return;
 
@@ -127,7 +193,7 @@ const WeightList: React.FC = () => {
     if (response.meta.requestStatus === 'fulfilled') {
       toastRef.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Parametre Güncellendi', life: 2000 });
       setData(prevData => prevData.map(item => ({ ...item, isNew: false, isUpdated: false })));
-      updateChart();
+      fetchPlateData();
     } else {
       toastRef.current?.show({ severity: 'error', summary: 'Hata', detail: 'Sunucuya ulaşılamadı.', life: 3000 });
     }
@@ -138,30 +204,49 @@ const WeightList: React.FC = () => {
     const response = await dispatch(deleteWeight({ key: key }));
     if (response.meta.requestStatus === 'fulfilled') {
       toastRef.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Parametre Silindi', life: 2000 });
+      fetchPlateData();
     } else {
       toastRef.current?.show({ severity: 'error', summary: 'Hata', detail: 'Sunucuya ulaşılamadı.', life: 3000 });
     }
   };
 
   const handleAddRow = () => {
-    const newId = data.length ? data[data.length - 1].id + 1 : 1;
-    const newRow: EditableWeightDto = { id: newId, key: '', weight: 0, minValue: 0, maxValue: 0, type: '', isNew: true };
+    const newId = data.length ? Math.max(...data.map(item => item.id)) + 1 : 1;
+    const newKey = `new_key_${newId}`;
+    const newRow: EditableWeightDto = { id: newId, key: newKey, weight: 0, minValue: 0, maxValue: 0, type: '', isNew: true };
     setData([...data, newRow]);
   };
 
-  const updateChart = () => {
-    setChartData({ ...chartData }); // Refresh chart with updated data
-  };
+  if (data.length === 0) {
+    return <div>Yükleniyor...</div>;
+  }
+
+  const renderTooltip = (plate: string) => (
+    <Tooltip id={`tooltip-${plate}`}>
+      {plateInfos[plate] ? (
+        <>
+          <strong>Araç Bilgileri:</strong><br />
+          Marka: {plateInfos[plate].car.make}<br />
+          Model: {plateInfos[plate].car.model}<br />
+          Yıl: {plateInfos[plate].car.year}<br />
+          Motor: {plateInfos[plate].car.engine}<br />
+          Kilometre: {plateInfos[plate].car.kilometers}<br />
+          <br />
+          <strong>Müşteri Bilgileri:</strong><br />
+          İsim: {plateInfos[plate].customer.name}<br />
+          Adres: {plateInfos[plate].customer.address}<br />
+          Telefon: {plateInfos[plate].customer.phone}<br />
+        </>
+      ) : (
+        'Bilgi yükleniyor...'
+      )}
+    </Tooltip>
+  );
 
   return (
     <div>
       <Container className="mt-5">
         <Toast ref={toastRef} />
-        <Row className="justify-content-center mb-4">
-          <Col md="auto">
-            <h2>Veri Düzenleme Paneli</h2>
-          </Col>
-        </Row>
         <Table striped bordered hover responsive className="shadow-sm">
           <thead className="bg-primary text-white">
             <tr>
@@ -203,7 +288,7 @@ const WeightList: React.FC = () => {
         value={item.minValue}
         onChange={(e) => handleInputChange(e, item.id)}
         className="border-0"
-        disabled={[WeightsType.POLICY_TYPE, WeightsType.GENDER].includes(item.type as WeightsType)}
+        disabled={[WeightsType.POLICY_TYPE, WeightsType.GENDER, WeightsType.CAR_TYPE].includes(item.type as WeightsType)}
       />
     </td>
     <td>
@@ -213,7 +298,7 @@ const WeightList: React.FC = () => {
         value={item.maxValue}
         onChange={(e) => handleInputChange(e, item.id)}
         className="border-0"
-        disabled={[WeightsType.POLICY_TYPE, WeightsType.GENDER].includes(item.type as WeightsType)}
+        disabled={[WeightsType.POLICY_TYPE, WeightsType.GENDER, WeightsType.CAR_TYPE].includes(item.type as WeightsType)}
       />
     </td>
     <td>
@@ -222,18 +307,18 @@ const WeightList: React.FC = () => {
         value={item.type === 'MALE' || item.type === 'FEMALE' ? 'GENDER' : item.type}
         onChange={(e) => handleInputChange(e, item.id)}
         className="border-0"
-        disabled={!item.isNew} // Veritabanından gelenler için disabled
+        disabled={!item.isNew}
       >
         <option value="">Tür Seç</option>
         {Object.values(WeightsType)
-          .filter(type => item.isNew ? type !== WeightsType.GENDER : true)
+          .filter(type => item.isNew ? ![WeightsType.GENDER, WeightsType.POLICY_TYPE, WeightsType.CAR_TYPE].includes(type) : true)
           .map(type => (
             <option key={type} value={type}>{type === WeightsType.GENDER ? 'GENDER' : type}</option>
           ))}
       </Form.Select>
     </td>
     <td className="text-center">
-  {item.type !== WeightsType.GENDER && item.type !== WeightsType.POLICY_TYPE && (
+  {item.type !== WeightsType.GENDER && item.type !== WeightsType.POLICY_TYPE && item.type !== WeightsType.CAR_TYPE && (
     <Button variant="danger" size="sm" onClick={() => handleDelete(item.id, item.key)}>Sil</Button>
   )}
 </td>
@@ -243,7 +328,7 @@ const WeightList: React.FC = () => {
           </tbody>
         </Table>
         <div className="text-end mt-3">
-          <Button variant="primary" onClick={handleAddRow} className="me-2">Satır Ekle</Button>
+          <Button variant="primary" onClick={handleAddRow} className="me-2">Yeni Bir Parametre Ekle</Button>
           <Button variant="success" onClick={handleSave}>Kaydet</Button>
         </div>
         <Row className="mt-5">
@@ -251,9 +336,35 @@ const WeightList: React.FC = () => {
             <Chart type="line" data={chartData} options={chartOptions} />
           </Col>
         </Row>
+        <Row className="mt-3">
+          <Col>
+            <h4>Plaka Bilgileri</h4>
+            <Row xs={1} md={2} lg={3} className="g-4">
+              {Object.keys(plateInfos).map(plate => (
+                <Col key={plate}>
+                  <Card>
+                    <Card.Body>
+                      <Card.Title>{plate}</Card.Title>
+                      <Card.Text>
+                        Poliçe Tutarı: {policyAmounts[plate]} TL
+                      </Card.Text>
+                      <OverlayTrigger
+                        placement="top"
+                        delay={{ show: 250, hide: 400 }}
+                        overlay={renderTooltip(plate)}
+                      >
+                        <Button variant="outline-info" size="sm">Detaylar</Button>
+                      </OverlayTrigger>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </Col>
+        </Row>
       </Container>
     </div>
   );
 };
 
-export default WeightList;
+export default CarPolicyWeight;

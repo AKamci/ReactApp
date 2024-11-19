@@ -1,13 +1,13 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom';
 
-const EarthquakeLeftNav = () => {
+const HealthPolicyLeftNav = () => {
   
     return (
 		<>
 			<div className='list-group'>
 				<NavLink
-					to='/earthQuake'
+					to='/healthPolicy'
                     end
 					className={({ isActive }) =>
 						`list-group-item list-group-item-action ${isActive ? 'active' : ''}`
@@ -16,43 +16,42 @@ const EarthquakeLeftNav = () => {
 				</NavLink>
 
 				<NavLink
-					to='/earthQuake/createEarthQuakePolicy'
+					to='/healthPolicy/createHealthPolicy'
                     end
 					className={({ isActive }) =>
 						`list-group-item list-group-item-action ${isActive ? 'active' : ''}`
 					}>
-					DEPREM POLİÇESİ OLUŞTUR
+					SAĞLIK POLİÇESİ OLUŞTUR
 				</NavLink>
 
 				<NavLink
-					to='/earthQuake/getEarthQuakePolicy'
+					to='/healthPolicy/getHealthPolicy'
                     end
 					className={({ isActive }) =>
 						`list-group-item list-group-item-action ${isActive ? 'active' : ''}`
 					}>
-					DEPREM POLİÇESİ BUL
+					SAĞLIK POLİÇESİ BUL
 				</NavLink>
 
 				<NavLink
-					to='/earthQuake/list'
+					to='/healthPolicy/list'
                     end
 					className={({ isActive }) =>
 						`list-group-item list-group-item-action ${isActive  ? 'active' : ''}`
 					}>
-					DEPREM POLİÇESİ LİSTELE
+					SAĞLIK POLİÇESİ LİSTELE
 				</NavLink>
-
 				<NavLink
-					to='/earthQuake/weights'
+					to='/healthPolicy/weight'
                     end
 					className={({ isActive }) =>
-						`list-group-item list-group-item-action ${isActive ? 'active' : ''}`
+						`list-group-item list-group-item-action ${isActive  ? 'active' : ''}`
 					}>
-					DEPREM POLİÇESİ AĞIRLIK DÜZENLE
+					SAĞLIK POLİÇESİ AĞIRLIK DÜZENLE
 				</NavLink>
 			</div>
 		</>
 	);  
 }
 
-export default EarthquakeLeftNav
+export default HealthPolicyLeftNav

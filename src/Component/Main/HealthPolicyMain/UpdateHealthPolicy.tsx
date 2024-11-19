@@ -10,13 +10,14 @@ import { ConfirmPopup } from 'primereact/confirmpopup';
 import { Button } from 'primereact/button';
 import { rejectEarthquakePolicy } from '../../../infrastructure/Store/Slices/EarthQuakeSlices/RejectEarthquakePolicy';
 import { acceptEarthquakePolicy } from '../../../infrastructure/Store/Slices/EarthQuakeSlices/AcceptEarthquakePolicy';
+import { acceptHealthPolicy } from '../../../infrastructure/Store/Slices/HealthPolicySlices/AcceptHealthPolicy';
 
 
-const UpdateEarthquakePolicy = () => {
+const UpdateHealthPolicy = () => {
   const dispatch = useAppDispatch();
-  const earthquakePolicy = useAppSelector((state) => state.updateEarthquakePolicy.data);
-  const earthquakePolicyEntity = useAppSelector((state) => state.getEarthquakePolicy.data);
-  const responseStatus = useAppSelector((state) => state.getEarthquakePolicy.responseStatus);
+  const healthPolicy = useAppSelector((state) => state.updateHealthPolicy.data);
+  const healthPolicyEntity = useAppSelector((state) => state.getHealthPolicy.data);
+  const responseStatus = useAppSelector((state) => state.getHealthPolicy.responseStatus);
 
   const earthquakePolicyInformation = useAppSelector((state) => state.getHouseWithCustomer.data);
 
@@ -24,7 +25,7 @@ const UpdateEarthquakePolicy = () => {
 
   const location = useLocation();
 
-  const earthquakePolicyData = location.state?.earthquakePolicy.earthquakePolicy;
+  const healthPolicyData = location.state?.healthPolicy.healthPolicy;
 
   const [visible, setVisible] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
@@ -50,20 +51,20 @@ const UpdateEarthquakePolicy = () => {
   const [descriptionValid, setDescriptionValid] = useState<boolean>(false);
 
   useEffect(() => {
-    if (earthquakePolicyData) {
-      console.log(earthquakePolicyData)
-      setLicensePlateNumber(earthquakePolicyData.licensePlateNumber || '');
-      setPolicyOfferDate(earthquakePolicyData.policyOfferDate ? new Date(earthquakePolicyData.policyOfferDate) : null);
-      setPolicyOfferDate(earthquakePolicyData.policyStartDate ? new Date(earthquakePolicyData.policyStartDate) : null);
-      setPolicyDescription(earthquakePolicyData.coverage ? earthquakePolicyData.coverage.coverageDescription : '');
-      setPolicyType(earthquakePolicyData.coverage ? earthquakePolicyData?.coverage.coverageType : '');
-      setPolicyStatus(earthquakePolicyData.policyStatus || false);
-      setPolicyStartDate(earthquakePolicyData.policyStartDate ? new Date(earthquakePolicyData.policyStartDate) : null);
-      setPolicyEndDate(earthquakePolicyData.policyEndDate ? new Date(earthquakePolicyData.policyEndDate) : null);
-      setPolicyAmount(earthquakePolicyData.policyAmount || null);
-      setPolicyId(earthquakePolicyData.policyId || null);
+    if (healthPolicyData) {
+      console.log(healthPolicyData)
+      setLicensePlateNumber(healthPolicyData.licensePlateNumber || '');
+      setPolicyOfferDate(healthPolicyData.policyOfferDate ? new Date(healthPolicyData.policyOfferDate) : null);
+      setPolicyOfferDate(healthPolicyData.policyStartDate ? new Date(healthPolicyData.policyStartDate) : null);
+      setPolicyDescription(healthPolicyData.coverage ? healthPolicyData.coverage.coverageDescription : '');
+      setPolicyType(healthPolicyData.coverage ? healthPolicyData?.coverage.coverageType : '');
+      setPolicyStatus(healthPolicyData.policyStatus || false);
+      setPolicyStartDate(healthPolicyData.policyStartDate ? new Date(healthPolicyData.policyStartDate) : null);
+      setPolicyEndDate(healthPolicyData.policyEndDate ? new Date(healthPolicyData.policyEndDate) : null);
+      setPolicyAmount(healthPolicyData.policyAmount || null);
+      setPolicyId(healthPolicyData.policyId || null);
     }
-  }, [earthquakePolicyData]); 
+  }, [healthPolicyData]); 
   
   useEffect(() => {
     if (policyOfferDate) {
@@ -85,9 +86,9 @@ const UpdateEarthquakePolicy = () => {
         )
           .unwrap()
           .then((result) => {
-            if (result.amount !== policyAmount) {
+            if (result.Amount !== policyAmount) {
               console.log("Fiyat Güncellendi");
-              setPolicyAmount(result.amount);
+              setPolicyAmount(result.Amount);
             }
           });
   
@@ -103,12 +104,12 @@ const UpdateEarthquakePolicy = () => {
     }
 
     if (
-      policyDescription === earthquakePolicyData.policyDescription &&
-      policyType === earthquakePolicyData.policyType &&
-      policyStatus === earthquakePolicyData.policyStatus &&
-      policyAmount === earthquakePolicyData.policyAmount &&
-      policyStartDate?.toISOString().split('T')[0] === new Date(earthquakePolicyData.policyStartDate).toISOString().split('T')[0] &&
-      policyEndDate?.toISOString().split('T')[0] === new Date(earthquakePolicyData.policyEndDate).toISOString().split('T')[0]
+      policyDescription === healthPolicyData.policyDescription &&
+      policyType === healthPolicyData.policyType &&
+      policyStatus === healthPolicyData.policyStatus &&
+      policyAmount === healthPolicyData.policyAmount &&
+      policyStartDate?.toISOString().split('T')[0] === new Date(healthPolicyData.policyStartDate).toISOString().split('T')[0] &&
+      policyEndDate?.toISOString().split('T')[0] === new Date(healthPolicyData.policyEndDate).toISOString().split('T')[0]
     ) {
       toast.current?.show({ severity: 'warn', summary: 'Uyarı', detail: 'Hiçbir değişiklik yapılmadı.', life: 3000 });
       return false;
@@ -125,14 +126,14 @@ const UpdateEarthquakePolicy = () => {
   const accept = async () => {
    
     console.log(policyId, "policyId");
-    dispatch(acceptEarthquakePolicy({ policyId }));
+    dispatch(acceptHealthPolicy({ policyId }));
 
     setLoading(true);
     await toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Poliçe Başarıyla Güncellendi.', life: 2000 });
 
     setTimeout(() => {
       setLoading(false);
-      navigate('/earthquake/list');
+      navigate('/healthPolicy/list');
     }, 2000);
   };
 
@@ -158,14 +159,14 @@ const UpdateEarthquakePolicy = () => {
 
   const reject = async () => {
     
-    dispatch(rejectEarthquakePolicy({ policyId}));
+    dispatch(rejectHealthPolicy({ policyId}));
 
     setLoading(true);
     toast.current?.show({ severity: 'success', summary: 'Bilgi', detail: 'Poliçe Başarıyla Güncellendi.', life: 2000 });
 
     setTimeout(() => {
       setLoading(false);
-      navigate('/earthquake/list');
+      navigate('/healthPolicy/list');
     }, 2000);
   };
 
@@ -309,4 +310,4 @@ const UpdateEarthquakePolicy = () => {
   );
 }
 
-export default UpdateEarthquakePolicy
+export default UpdateHealthPolicy

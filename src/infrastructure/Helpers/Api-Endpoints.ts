@@ -38,6 +38,24 @@ export default {
 		GetListWeight:`${baseUrl_v1}/weight/list`,
 		UpdateListWeight:`${baseUrl_v1}/weight/saveAll`
 	},
+	HealthPolicyWeight:{
+		CreateHealthPolicyWeight: `${baseUrl_v1}/healthPolicyWeight`,
+		GetHealthPolicyWeight: `${baseUrl_v1}/healthPolicyWeight`,
+		DeleteHealthPolicyWeight: `${baseUrl_v1}/healthPolicyWeight`,
+		UpdateHealthPolicyWeight: `${baseUrl_v1}/healthPolicyWeight`,
+		GetListHealthPolicyWeight:`${baseUrl_v1}/healthPolicyWeight/list`,
+		UpdateListHealthPolicyWeight:`${baseUrl_v1}/healthPolicyWeight/saveAll`
+	},
+
+	EarthquakePolicyWeight:{
+
+		GetEarthquakeWeight: `${baseUrl_v1}/earthquakePolicyWeight`,
+		DeleteEarthquakeWeight: `${baseUrl_v1}/earthquakePolicyWeight`,
+		CreateEarthquakeWeight: `${baseUrl_v1}/earthquakePolicyWeight`,
+		UpdateEarthquakeWeight: `${baseUrl_v1}/earthquakePolicyWeight`,
+		GetListEarthquakeWeight:`${baseUrl_v1}/earthquakePolicyWeight/list`,
+		UpdateListEarthquakeWeight:`${baseUrl_v1}/earthquakePolicyWeight/saveAll`
+	},
 
 	EarthquakePolicy:{
 		CreateEarthquake: `${baseUrl_v1}/earthQuake`,
@@ -51,9 +69,25 @@ export default {
 
 		
 	},
+
+	HealthPolicy:{
+		CreateHealth: `${baseUrl_v1}/healthPolicy`,
+		GetHealth: `${baseUrl_v1}/healthPolicy`,
+		DeleteHealth: `${baseUrl_v1}/healthPolicy`,
+		UpdateHealth: `${baseUrl_v1}/healthPolicy`,
+		AcceptHealth: `${baseUrl_v1}/healthPolicy/accepted`,
+		RejectHealth: `${baseUrl_v1}/healthPolicy/rejected`,
+		GetAllHealth: `${baseUrl_v1}/healthPolicy/list`,
+		TotalHealthPolicy: `${baseUrl_v1}/healthPolicy/totalRecord`,
+	},
 	House:{
 		GetWithCustomer: `${baseUrl_v1}/house/WCustomer`,
 
+	},
+	PersonalHealth:{
+		GetWithCustomer: `${baseUrl_v1}/personalHealth/WCustomer`,
+		CreatePersonalHealth: `${baseUrl_v1}/personalHealth`,
+		
 	},
 
 };

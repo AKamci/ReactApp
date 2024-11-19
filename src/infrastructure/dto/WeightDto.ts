@@ -1,6 +1,5 @@
 
 
-
 export interface WeightDto {
 
     id: number;

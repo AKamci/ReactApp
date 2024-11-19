@@ -30,3 +30,4 @@ export const EarthquakePage = () => {
 };
 
 
+export default React.memo(EarthquakePage);

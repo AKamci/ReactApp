@@ -65,7 +65,23 @@ const CreateCustomer = () => {
   const validateTckn = (value: string) => {
     const numericValue = value.replace(/\D/g, '');
     if (numericValue.length === 11) {
-      setTcknValid(true);
+      let oddSum = 0;
+      let evenSum = 0;
+      for (let i = 0; i < 9; i++) {
+        if (i % 2 === 0) {
+          oddSum += parseInt(numericValue[i]);
+        } else {
+          evenSum += parseInt(numericValue[i]);
+        }
+      }
+      const tenthDigit = (oddSum * 7 - evenSum) % 10;
+      const eleventhDigit = (oddSum + evenSum + parseInt(numericValue[9])) % 10;
+      
+      if (tenthDigit === parseInt(numericValue[9]) && eleventhDigit === parseInt(numericValue[10])) {
+        setTcknValid(true);
+      } else {
+        setTcknValid(false);
+      }
     } else {
       setTcknValid(false);
     }

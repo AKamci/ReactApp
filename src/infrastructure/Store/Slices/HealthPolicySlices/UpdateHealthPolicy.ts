@@ -3,10 +3,12 @@ import axios from 'axios';
 import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
 import Endpoints from '../../../Helpers/Api-Endpoints';
-import { LicensePlateDto } from "../../../dto/LicensePlateDto";
+import { CarPolicyDto } from "../../../dto/CarPolicyDto";
+import { EarthquakePolicyDto } from "../../../dto/EarthquakePolicyDto";
+import { HealthPolicyDto } from "../../../dto/HealthPolicyDto";
 
-export interface LicensePlateState {
-    data: LicensePlateDto;
+export interface HealthPolicyState {
+    data: HealthPolicyDto;
     state: ApiState;
     activeRequest: number | null;
     responseStatus: number | null; 
@@ -16,20 +18,17 @@ export interface LicensePlateState {
 const initialState = { 
     state: ApiState.Idle, 
     activeRequest: null, 
-    data: {} as LicensePlateDto, 
+    data: {} as HealthPolicyDto, 
     responseStatus: null, 
     errorMessage: null    
-} as LicensePlateState;
+} as HealthPolicyState;
 
-export const getPlateWithCustomer = createAsyncThunk<LicensePlateDto, { plate: string, coverageCode: number }, { state: LicensePlateState }>(
-    'licensePlate/WCustomer',
-    async ({ plate, coverageCode }, { rejectWithValue }) => {
-        console.log("getCustomers with tckn:", plate);
-        
+export const updateHealthPolicy = createAsyncThunk<HealthPolicyDto, { dto: HealthPolicyDto }, { state: HealthPolicyState }>(
+    'updateHealthPolicy',
+    async ({ dto }, { rejectWithValue }) => {
+        console.log(dto, "DTO")
         try {
-            const response = await axios.get<LicensePlateDto>(Endpoints.LicensePlate.GetWithCustomer, {
-                params: { plate, coverageCode }
-            });
+            const response = await axios.put<HealthPolicyDto>(Endpoints.HealthPolicy.UpdateHealth,dto);
             console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {
@@ -42,23 +41,23 @@ export const getPlateWithCustomer = createAsyncThunk<LicensePlateDto, { plate: s
     }
 );
 
-const getPlateWithCustomerSlice = createSlice({
-    name: 'getPlateWithCustomer',
+const updateHealthPolicySlice = createSlice({
+    name: 'updateHealthPolicy',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(getPlateWithCustomer.pending, (state, action) => {
+            builder.addCase(updateHealthPolicy.pending, (state, action) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   
         });
-        builder.addCase(getPlateWithCustomer.fulfilled, (state, action) => {
+        builder.addCase(updateHealthPolicy.fulfilled, (state, action) => {
             console.log("Müşteri verisi Redux'a geldi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  
             state.errorMessage = null;   
         });
-        builder.addCase(getPlateWithCustomer.rejected, (state, action) => {
+        builder.addCase(updateHealthPolicy.rejected, (state, action) => {
             state.state = ApiState.Rejected;
             if (action.payload) {
                 state.responseStatus = (action.payload as any).status;  
@@ -76,6 +75,6 @@ const getPlateWithCustomerSlice = createSlice({
     },
 });
 
-export const { setActiveRequest } = getPlateWithCustomerSlice.actions;
+export const { setActiveRequest } = updateHealthPolicySlice.actions;
 
-export default getPlateWithCustomerSlice.reducer;
+export default updateHealthPolicySlice.reducer;

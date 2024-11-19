@@ -132,7 +132,8 @@ const CreateEarthquakePolicy = () => {
         apartmentNumber: Number(requestDto.apartmentNumber),
         city: requestDto.city,
         district: requestDto.district,
-        neighborhood: requestDto.neighborhood
+        neighborhood: requestDto.neighborhood,
+        coverageCode: policyCoverage || 0
       })).unwrap();
   
       console.log("API'den gelen yanıt:", response);

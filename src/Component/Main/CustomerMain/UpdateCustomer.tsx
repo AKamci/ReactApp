@@ -38,7 +38,7 @@ const UpdateCustomer = () => {
       setPhone(customerData.phone || '');
       setEmail(customerData.email || '');
       setAddress(customerData.address || '');
-      setGender(customerData.gender || null);
+      setGender(customerData.gender === 0 ? 0 : (customerData.gender || null));
       setTckn(customerData.tckn || '');
       setBirthDate(customerData.birthDay ? new Date(customerData.birthDay) : null);
     }

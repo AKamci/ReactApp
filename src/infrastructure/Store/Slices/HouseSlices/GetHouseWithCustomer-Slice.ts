@@ -20,20 +20,14 @@ const initialState = {
     errorMessage: null    
 } as HouseState;
 
-export const getHouseWithCustomer = createAsyncThunk<HouseDto, { number: number, apartmentNumber: number, city: string, district: string, neighborhood: string}, { state: { getHouseWithCustomer: HouseState } }>(
+export const getHouseWithCustomer = createAsyncThunk<HouseDto, { number: number, apartmentNumber: number, city: string, district: string, neighborhood: string, coverageCode: number}, { state: { getHouseWithCustomer: HouseState } }>(
     'house/WCustomer',
-    async ({ number, apartmentNumber, city, district, neighborhood }, { rejectWithValue }) => {
+    async ({ number, apartmentNumber, city, district, neighborhood, coverageCode }, { rejectWithValue }) => {
         try {
             console.log("Slice İçinden: > > Gönderilen DTO:", number, apartmentNumber, city, district, neighborhood);
-            const response = await axios.get<HouseDto>(Endpoints.House.GetWithCustomer, {
-                params: { 
-                    number: number,
-                    apartmentNumber: apartmentNumber, 
-                    city: city, 
-                    district: district, 
-                    neighborhood: neighborhood 
-                }
-            });
+            const url = `${Endpoints.House.GetWithCustomer}?number=${number}&apartmentNumber=${apartmentNumber}
+            &city=${encodeURIComponent(city)}&district=${encodeURIComponent(district)}&neighborhood=${encodeURIComponent(neighborhood)}&coverageCode=${coverageCode}`;
+            const response = await axios.get<HouseDto>(url);
             console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {

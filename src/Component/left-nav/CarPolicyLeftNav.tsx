@@ -44,6 +44,16 @@ const CarPolicyLeftNav = () => {
 >
     TÜM ARABA POLİÇELERİNİ LİSTELE
 </NavLink>
+
+<NavLink
+    to="/carPolicy/weight"
+    end
+    className={({ isActive }) =>
+        `list-group-item list-group-item-action ${isActive? 'active' : ''}`
+    }
+>
+    ARABA POLİÇELERİNİ AĞIRLIKLARINI DÜZENLE
+</NavLink>
   </div>
 
   )

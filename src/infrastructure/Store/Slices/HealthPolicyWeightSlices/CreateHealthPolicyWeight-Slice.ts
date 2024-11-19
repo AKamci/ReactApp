@@ -1,12 +1,13 @@
 import { CustomerDto } from "../../../dto/CustomerDto";
 import axios from 'axios';
-import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
 import Endpoints from '../../../Helpers/Api-Endpoints';
-import { LicensePlateDto } from "../../../dto/LicensePlateDto";
+import { CarPolicyDto } from "../../../dto/CarPolicyDto";
+import { WeightDto } from "../../../dto/WeightDto";
 
-export interface LicensePlateState {
-    data: LicensePlateDto;
+export interface HealthPolicyWeightState {
+    data: WeightDto;
     state: ApiState;
     activeRequest: number | null;
     responseStatus: number | null; 
@@ -16,24 +17,21 @@ export interface LicensePlateState {
 const initialState = { 
     state: ApiState.Idle, 
     activeRequest: null, 
-    data: {} as LicensePlateDto, 
+    data: {} as WeightDto, 
     responseStatus: null, 
     errorMessage: null    
-} as LicensePlateState;
+} as HealthPolicyWeightState;
 
-export const getPlateWithCustomer = createAsyncThunk<LicensePlateDto, { plate: string, coverageCode: number }, { state: LicensePlateState }>(
-    'licensePlate/WCustomer',
-    async ({ plate, coverageCode }, { rejectWithValue }) => {
-        console.log("getCustomers with tckn:", plate);
+export const createHealthPolicyWeight = createAsyncThunk<WeightDto, { dto: WeightDto }, { state: HealthPolicyWeightState }>(
+    'createHealthPolicyWeight',
+    async ({ dto }, { rejectWithValue }) => {
+        console.log("Create a Weight:", dto);
         
         try {
-            const response = await axios.get<LicensePlateDto>(Endpoints.LicensePlate.GetWithCustomer, {
-                params: { plate, coverageCode }
-            });
+            const response = await axios.post<WeightDto>(Endpoints.HealthPolicyWeight.CreateHealthPolicyWeight, dto);
             console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {
-            
             const status = error.response ? error.response.status : 500; 
             const message = error.response?.data?.message || "An error occurred";
             console.error("Error status:", status, "Message:", message);
@@ -42,23 +40,23 @@ export const getPlateWithCustomer = createAsyncThunk<LicensePlateDto, { plate: s
     }
 );
 
-const getPlateWithCustomerSlice = createSlice({
-    name: 'getPlateWithCustomer',
+    const createHealthPolicyWeightSlice = createSlice({
+    name: 'createHealthPolicyWeight',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(getPlateWithCustomer.pending, (state, action) => {
+        builder.addCase(createHealthPolicyWeight.pending, (state, action) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   
         });
-        builder.addCase(getPlateWithCustomer.fulfilled, (state, action) => {
+        builder.addCase(createHealthPolicyWeight.fulfilled, (state, action) => {
             console.log("Müşteri verisi Redux'a geldi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  
             state.errorMessage = null;   
         });
-        builder.addCase(getPlateWithCustomer.rejected, (state, action) => {
+        builder.addCase(createHealthPolicyWeight.rejected, (state, action) => {
             state.state = ApiState.Rejected;
             if (action.payload) {
                 state.responseStatus = (action.payload as any).status;  
@@ -73,9 +71,12 @@ const getPlateWithCustomerSlice = createSlice({
         setActiveRequest: (state, action) => {
             state.activeRequest = action.payload;
         },
+        resetResponseStatus: (state) => {
+            state.responseStatus = null;  
+        },
     },
 });
 
-export const { setActiveRequest } = getPlateWithCustomerSlice.actions;
+export const { setActiveRequest, resetResponseStatus } = createHealthPolicyWeightSlice.actions;
 
-export default getPlateWithCustomerSlice.reducer;
+export default createHealthPolicyWeightSlice.reducer;

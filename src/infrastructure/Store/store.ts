@@ -41,6 +41,31 @@ import TotalRecordOfEarthquakePolicy from './Slices/EarthQuakeSlices/TotalRecord
 import AcceptEarthquakePolicy from './Slices/EarthQuakeSlices/AcceptEarthquakePolicy';
 import RejectEarthquakePolicy from './Slices/EarthQuakeSlices/RejectEarthquakePolicy';
 import GetAllEarthquakePolicySlice from './Slices/EarthQuakeSlices/GetAllEarhquakePolicy-Slice';
+import GetPersonalHealthWithCustomer from './Slices/PersonalHealthSlice/PersonalHealthGetWCustomer';
+import CreatePersonalHealth from './Slices/PersonalHealthSlice/CreatePersonalHealth';
+import DeleteHealthPolicy from './Slices/HealthPolicySlices/DeleteHealthPolicy';
+
+import GetHealthPolicy from './Slices/HealthPolicySlices/GetHealthPolicy';
+import CreateHealthPolicy from './Slices/HealthPolicySlices/CreateHealthPolicy';
+import UpdateHealthPolicy from './Slices/HealthPolicySlices/UpdateHealthPolicy';
+import AcceptHealthPolicy from './Slices/HealthPolicySlices/AcceptHealthPolicy';
+import TotalRecordOfHealthPolicy from './Slices/HealthPolicySlices/TotalRecordOfHealthPolicy';
+import RejectHealthPolicy from './Slices/HealthPolicySlices/RejectHealthPolicy';
+import GetAllHealthPolicy from './Slices/HealthPolicySlices/GetAllHealthPolicy';
+
+import GetHealthPolicyWeight from './Slices/HealthPolicyWeightSlices/GetHealthPolicyWeight-Slice';
+import GetListHealthPolicyWeight from './Slices/HealthPolicyWeightSlices/GetListHealthPolicyWeight-Slice';
+import UpdateHealthPolicyWeight from './Slices/HealthPolicyWeightSlices/UpdateHealthPolicyWeight-Slice';
+import CreateHealthPolicyWeight from './Slices/HealthPolicyWeightSlices/CreateHealthPolicyWeight-Slice';
+import DeleteHealthPolicyWeight from './Slices/HealthPolicyWeightSlices/DeleteHealthPolicyWeight-Slice';
+
+import GetEarthquakeWeight from './Slices/EarthquakePolicyWeightSlices/GetEarthquakeWeight-Slice';
+import UpdateEarthquakeWeight from './Slices/EarthquakePolicyWeightSlices/UpdateEarthquakeWeight-Slice';
+import DeleteEarthquakeWeight from './Slices/EarthquakePolicyWeightSlices/DeleteEarthquakeWeight-Slice';
+import CreateEarthquakeWeight from './Slices/EarthquakePolicyWeightSlices/CreateEarthquakeWeight-Slice';
+import GetListEarthquakeWeight from './Slices/EarthquakePolicyWeightSlices/GetListEarthquakeWeight-Slice';
+import UpdateListEarthquakeWeight from './Slices/EarthquakePolicyWeightSlices/UpdateListEarthquakeWeight-Slice';
+import UpdateListHealthPolicyWeight from './Slices/HealthPolicyWeightSlices/UpdateListHealthPolicyWeight-Slice';
 
 const store = configureStore({
 	reducer: {
@@ -94,7 +119,38 @@ const store = configureStore({
 		acceptEarthquakePolicy: AcceptEarthquakePolicy,
 		rejectEarthquakePolicy: RejectEarthquakePolicy,
 		allEarthquakePolicy: GetAllEarthquakePolicySlice,
+
+
+		// HEALTH POLICY
+
+		createHealthPolicy: CreateHealthPolicy,
+		getHealthPolicy: GetHealthPolicy,
+		deleteHealthPolicy: DeleteHealthPolicy,
+		updateHealthPolicy: UpdateHealthPolicy,
+		rejectHealthPolicy: RejectHealthPolicy,
+		acceptHealthPolicy: AcceptHealthPolicy,
+		totalRecordHealthPolicy: TotalRecordOfHealthPolicy,
+		allHealthPolicy: GetAllHealthPolicy,
+
+
 		
+		getPersonalHealthWithCustomer: GetPersonalHealthWithCustomer,	
+		createPersonalHealth: CreatePersonalHealth,
+
+
+		getHealthPolicyWeight: GetHealthPolicyWeight,
+		getListHealthPolicyWeight: GetListHealthPolicyWeight,
+		updateHealthPolicyWeight: UpdateHealthPolicyWeight,
+		createHealthPolicyWeight: CreateHealthPolicyWeight,
+		deleteHealthPolicyWeight: DeleteHealthPolicyWeight,
+		updateListHealthPolicyWeight: UpdateListHealthPolicyWeight,
+
+		getEarthquakeWeight: GetEarthquakeWeight,
+		updateEarthquakeWeight: UpdateEarthquakeWeight,
+		deleteEarthquakeWeight: DeleteEarthquakeWeight,
+		createEarthquakeWeight: CreateEarthquakeWeight,
+		getListEarthquakeWeight: GetListEarthquakeWeight,
+		updateListEarthquakeWeight: UpdateListEarthquakeWeight,
 
 
 
